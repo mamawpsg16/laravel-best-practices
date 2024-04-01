@@ -7,6 +7,7 @@
     <form id="login-form" method="POST" class="w-2/3 mx-auto">
         <p class="text-red-500" id="server-error"></p>
         <p class="mb-2 text-lg font-medium">Login</p>
+      
         <div class="grid grid-cols-2">
             <div class="mb-4 me-2">
                 <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
@@ -20,8 +21,11 @@
                 <p class="text-red-500" id="password-error"></p>
             </div>
         </div>
+        <div class="flex justify-end mb-2">
+            <a href="{{ route('auth.google.redirect') }}" class="text-end text-white bg-teal-700 hover:bg-teal-900 px-4 py-2 rounded">Google</a>
+        </div>
         <div class="flex justify-center">
-            <button type="submit" class=" w-[50px] text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full  px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Login</button>
+            <button type="submit" class="w-[50px] text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full  px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Login</button>
         </div>
     </form>
 @endsection 

@@ -6,7 +6,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Socialite\Two\InvalidStateException;
 
 class AuthenticationController extends Controller
 {
@@ -72,5 +74,30 @@ class AuthenticationController extends Controller
     
         return redirect()->route('posts.index');
 
+    }
+
+    public function socialAuthenticationRedirect(){
+        return Socialite::driver('google')->redirect();
+    }
+    public function socialAuthenticationCallback(){
+        try {
+            $user = Socialite::driver('google')->user();
+    
+            $authUser = User::updateOrCreate(
+                ['provider_id' => $user->getId()],
+                [
+                    'provider' => 'google',
+                    'name' => $user->getName(),
+                    'email' => $user->getEmail(),
+                ]
+            );
+    
+            Auth::login($authUser);
+    
+            return redirect()->route('dashboard');
+        } catch (InvalidStateException $exception) {
+            // Authentication denied
+            return redirect()->route('login.create');
+        }
     }
 }

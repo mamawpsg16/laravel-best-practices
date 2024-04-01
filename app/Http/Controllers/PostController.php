@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use Illuminate\Support\Facades\Validator;
@@ -14,7 +15,7 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $processedPosts = [];
         // $posts = Post::chunk(5, function ($posts) use(&$processedPosts){
@@ -126,6 +127,6 @@ class PostController extends Controller
     public function destroy(Request $request, Post $post)
     {
         $post->delete();
-        return redirect()->route('posts.index');
+        return response(['success' => true, 'message' => 'Post deleted successfully']);
     }
 }
