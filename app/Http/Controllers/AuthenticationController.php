@@ -46,6 +46,21 @@ class AuthenticationController extends Controller
     {
         return view('auth.login');
     }
+    public function loginApi(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            $user = User::where('email', $request->email)->first();
+            return response()->json(['user' => $user, 'isLoggedIn' => true]);
+        }
+
+        return response()->json(['error' => 'Invalid credentials', 'isLoggedIn' => false], 401);
+    }
     public function loginStore(Request $request)
     {
         return DB::transaction(function () use($request) {
@@ -66,13 +81,14 @@ class AuthenticationController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::logout();
-    
+        Auth::guard('web')->logout();
+        
         $request->session()->invalidate();
-    
+        
         $request->session()->regenerateToken();
+
     
-        return redirect()->route('posts.index');
+        return response(['success' => true]);
 
     }
 

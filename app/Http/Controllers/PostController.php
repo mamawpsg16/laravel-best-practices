@@ -37,7 +37,9 @@ class PostController extends Controller
         // dd($processedPosts);
         $posts = Post::with('author')->orderBy('id','desc')->get();
         $columns = array('Title','Content');
-        return view('posts.index',['data' => $posts, 'columns' => $columns]);
+        dd($posts, $columns);
+        return response(['columns' => $columns, 'posts' => $posts]);
+        // return view('posts.index',['data' => $posts, 'columns' => $columns]);
     }
 
     /**
