@@ -16,13 +16,10 @@ use App\Http\Controllers\AuthenticationController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
 
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user',[AuthenticationController::class, 'user']);
     Route::get('/posts',[PostController::class, 'index']);
     Route::post('/logout', [AuthenticationController::class,'logout'])->name('logout');
-    // your authenticated API routes here
 }); 

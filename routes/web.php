@@ -19,31 +19,19 @@ use App\Http\Controllers\AuthenticationController;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
-Route::post('/login', [AuthenticationController::class, 'loginApi']);
+Route::post('/login', [AuthenticationController::class, 'login']);
+Route::post('/register',[AuthenticationController::class,'register']);
 
 
 Route::get('/auth/google/redirect', [AuthenticationController::class, 'socialAuthenticationRedirect'])->name('auth.google.redirect');
 Route::get('/auth/google/callback',[AuthenticationController::class, 'socialAuthenticationCallback'])->name('auth.google.callback');
 
 Route::middleware(['guest'])->group(function(){
-    Route::get('/register',[AuthenticationController::class,'register'])->name('register.create');
-    Route::post('/register',[AuthenticationController::class,'registerStore'])->name('register.store');
-    // Route::get('/login',[AuthenticationController::class,'login'])->name('login.create');
-    // Route::post('/login',[AuthenticationController::class,'loginStore'])->name('login.store');
+
 });
 
 Route::middleware(['auth'])->group(function () {
-    // Route::resource('posts',PostController::class);
     Route::post('/logout', [AuthenticationController::class,'logout'])->name('logout');
-    
-    // Route::get('/dashboard', function(){
-    //     return view('dashboard');
-    // })->name('dashboard');
-
     Route::get('examples',function(){
         return view('example');
     });

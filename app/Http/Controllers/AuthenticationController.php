@@ -6,77 +6,39 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Services\AuthenticationService;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Socialite\Two\InvalidStateException;
+use App\Http\Requests\Authentication\LoginApiRequest;
+use App\Http\Requests\Authentication\RegisterApiRequest;
 
 class AuthenticationController extends Controller
 {
+
+    public function __construct(protected AuthenticationService $authenticationService){
+
+    }
   
-    public function register()
-    {
-        return view('auth.register');
+    public function user(Request $request){
+        $user = [
+            'name' => auth()->user()->name,
+            'email' => auth()->user()->email,
+        ];
+        
+        return response(['user' => $user]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function registerStore(Request $request)
+    public function register(RegisterApiRequest $request)
     {
-        return DB::transaction(function () use($request) {
-
-            $validators = Validator::make($request->all(), [
-                'name' => 'required',
-                'email' => ['required', 'email', 'unique:users'],
-                'password' => 'confirmed',
-                'password_confirmation' => 'required',
-            ]);
-            $data = $validators->validated();
-            $data['password'] = bcrypt($data['password']);
-            if($validators->fails()){
-            }
-
-            $user = User::create($data);
-            Auth::login($user);
-            return response(['status' => 'success']);
-        });
+        $data = $request->validated();
+        return $this->authenticationService->registerUser($data);
     }
 
-    public function login()
+    public function login(LoginApiRequest $request)
     {
-        return view('auth.login');
-    }
-    public function loginApi(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
-
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            $user = User::where('email', $request->email)->first();
-            return response()->json(['user' => $user, 'isLoggedIn' => true]);
-        }
-
-        return response()->json(['error' => 'Invalid credentials', 'isLoggedIn' => false], 401);
-    }
-    public function loginStore(Request $request)
-    {
-        return DB::transaction(function () use($request) {
-
-            $credentials = $request->validate([
-                'email' => ['required', 'email'],
-                'password' => ['required'],
-            ]);
-
-            if (Auth::attempt($credentials)) {
-                $request->session()->regenerate();
-     
-                return response(['success' => true]);
-            }
-
-        });
+        $credentials = $request->validated();
+        return $this->authenticationService->loginUser($credentials);
     }
 
     public function logout(Request $request)
@@ -86,7 +48,6 @@ class AuthenticationController extends Controller
         $request->session()->invalidate();
         
         $request->session()->regenerateToken();
-
     
         return response(['success' => true]);
 
@@ -95,6 +56,7 @@ class AuthenticationController extends Controller
     public function socialAuthenticationRedirect(){
         return Socialite::driver('google')->redirect();
     }
+
     public function socialAuthenticationCallback(){
         try {
             $user = Socialite::driver('google')->user();

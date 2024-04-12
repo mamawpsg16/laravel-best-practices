@@ -6,17 +6,27 @@ use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use Illuminate\Support\Facades\Validator;
 
 class PostController extends Controller
 {
+    public function __construct(protected Post $post){
+
+    }
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        // dd($this->post->getPosts(),'SHEESH');
+        // dd($post);
+        $post = Post::find(1);
+        // if (! Gate::allows('view-post', $post)) {
+        //     abort(403);
+        // }
         $processedPosts = [];
         // $posts = Post::chunk(5, function ($posts) use(&$processedPosts){
         //     foreach ($posts as $post) {

@@ -8,37 +8,46 @@ import axios from 'axios';
 import { useAuthStore } from './stores/authStore';
 window.axios = axios;
 
+const handleLogout = function() {
+  localStorage.removeItem('authenticated');
+  useAuthStore().logout();
+  window.location.href = "/login";
+}
+
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 // axios.defaults.baseURL = 'https://127.0.0.1:8080';
 axios.defaults.withCredentials = true;
 axios.defaults.withXSRFToken = true;
-axios.defaults.baseURL = 'http://127.0.0.1:8000'
-// window.axios.interceptors.response.use(
-//   function(response) {
-//       // Call was successful, don't do anything special.
-//       return response;
-//   },
-//   function (error) {
-//   switch (error.response.status) {
-//       case 401: // Not logged in
-//       case 419: 
-//           useAuthStore.logout();
-//         window.location.href="/login";
-//       case 503: // Down for maintenance
-//           // Bounce the user to the login screen with a redirect back
-//           window.location.reload();
-//           break;
-//       case 500:
-//           alert('Oops, something went wrong!  The team have been notified.');
-//           break;
-//       default:
-//           // Allow individual requests to handle other errors
-//           return Promise.reject(error);
-//   }
-// });
+axios.defaults.baseURL = 'http://localhost:8000'
+window.axios.interceptors.response.use(
+  function(response) {
+      // Call was successful, don't do anything special.
+      return response;
+  },
+  function (error) {
+  switch (error.response.status) {
+      case 401 && localStorage.getItem('authenticated'): // Not logged in
+      case 419: 
+        handleLogout()
+        break;
+      case 403: // Forbidden
+        window.location.href = "/forbidden";
+        break;
+ 
+      case 503: // Down for maintenance
+          // Bounce the user to the login screen with a redirect back
+          window.location.reload();
+          break;
+      case 500:
+          // alert('Oops, something went wrong!  The team have been notified.');
+          break;
+      default:
+          // Allow individual requests to handle other errors
+          return Promise.reject(error);
+  }
+});
 
 const csrf_token = document.head.querySelector('meta[name="csrf-token"]');
-console.log('axios', axios.interceptors);
 if (csrf_token) {
   axios.defaults.headers.common["X-CSRF-TOKEN"] = csrf_token.content;
 }

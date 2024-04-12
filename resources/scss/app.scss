@@ -1,0 +1,29 @@
+/* Example.scss */
+
+// .my-custom-class {
+//     @apply bg-blue-500 text-white p-4 rounded-md;
+// }
+
+*{
+    @apply box-border;
+}
+
+label{
+    @apply mb-2 text-base  dark:text-white;
+}
+
+.input{
+    @apply  border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-700 focus:border-blue-700 block w-full p-2.5 outline-none
+}
+
+.input-checkbox{
+    @apply w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800;
+}
+
+.auth-btn{
+    @apply text-white my-2 bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full  px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800;
+}
+
+.component-container{
+    @apply w-4/6 mx-auto;
+}

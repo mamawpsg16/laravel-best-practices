@@ -12,6 +12,10 @@ class Post extends Model
     protected $attributes = [
         'author_id' => 5,
     ];
+
+    public function getPosts(){
+        return $this->all();
+    }
     public function author()
     {
         return $this->belongsTo(Author::class);

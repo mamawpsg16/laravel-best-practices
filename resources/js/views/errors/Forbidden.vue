@@ -1,7 +1,7 @@
 <template>
     <div class="not-found-container">
-       <h1>404</h1>
-       <p>Page not found</p>
+       <h1>403</h1>
+       <p>Forbidden</p>
    </div>
 </template>
 
