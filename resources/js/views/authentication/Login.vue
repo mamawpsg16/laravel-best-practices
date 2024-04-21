@@ -20,7 +20,7 @@
       <button type="submit" class="auth-btn">Login</button>
       
       <div class="flex justify-around my-2">
-        <router-link class="rounded text-blue-500  hover:underline hover:cursor-pointer text-md" :to="{ name: 'login' }">FB</router-link>
+        <a :href="googleRedirect">Google</a>
         <router-link class="rounded text-blue-500  hover:underline hover:cursor-pointer text-md" :to="{ name: 'login' }">GMAIL</router-link>
       </div>
     </form>
@@ -38,6 +38,7 @@
         email: '',
         password: '',
         isCredentialInvalid:null,
+        googleRedirect:'auth/google/redirect',
         remembered:false,
         authStore:useAuthStore()
       }

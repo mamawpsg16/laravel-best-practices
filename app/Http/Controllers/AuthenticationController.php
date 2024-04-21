@@ -35,8 +35,12 @@ class AuthenticationController extends Controller
         return $this->authenticationService->registerUser($data);
     }
 
-    public function login(LoginApiRequest $request)
+    public function login(LoginApiRequest $request, $socialAuthCredentials = null)
     {
+        if(!is_null($socialAuthCredentials)){
+            return response()->json(['user' => $socialAuthCredentials, 'isLoggedIn' => true]);
+        }
+
         $credentials = $request->validated();
         return $this->authenticationService->loginUser($credentials);
     }
@@ -57,7 +61,7 @@ class AuthenticationController extends Controller
         return Socialite::driver('google')->redirect();
     }
 
-    public function socialAuthenticationCallback(){
+    public function socialAuthenticationCallback(LoginApiRequest $request){
         try {
             $user = Socialite::driver('google')->user();
     
@@ -69,13 +73,13 @@ class AuthenticationController extends Controller
                     'email' => $user->getEmail(),
                 ]
             );
-    
-            Auth::login($authUser);
-    
-            return redirect()->route('dashboard');
+            
+            $this->login($request, $authUser);
+
         } catch (InvalidStateException $exception) {
+            dd($exception,'EXCEPTION');
             // Authentication denied
-            return redirect()->route('login.create');
+            return redirect('login');
         }
     }
 }

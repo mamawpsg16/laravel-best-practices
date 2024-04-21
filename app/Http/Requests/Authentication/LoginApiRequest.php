@@ -21,10 +21,18 @@ class LoginApiRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $validations = [
             'email' => ['required', 'email'],
             'password' => ['required'],
             'remembered' => ['required'],
         ];
+        
+        $urlPath  = $this->getPathInfo();
+
+        if($urlPath != '/auth/google/callback'){
+            return $validations;
+        }
+
+        return [];
     }
 }
