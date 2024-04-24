@@ -39,6 +39,7 @@ Route::middleware(['auth'])->group(function () {
 
 
 Route::get('/{any?}', function () {
-    return view('app');
+    $user = session('auth-user');
+    return view('app',['user' => json_encode($user)]);
 })->where('any', '.*');
  

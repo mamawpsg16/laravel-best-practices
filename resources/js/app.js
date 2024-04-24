@@ -9,9 +9,9 @@ import App from './App.vue';
 import routes from './routes';
 import { createPinia } from 'pinia'
 
-const app = createApp(App);
+const app = createApp({});
 const pinia = createPinia()
-
+app.component('main-app',App);
 app.use(pinia)
 app.use(routes);
 app.mount('#app');

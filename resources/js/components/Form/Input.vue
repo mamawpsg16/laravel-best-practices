@@ -18,7 +18,7 @@ export default {
   emits: ['update:modelValue'],
 
   mounted(){
-    console.log(this.$attrs,'this.$attrs');
+    // console.log(this.$attrs,'this.$attrs');
   }
 }
 </script>

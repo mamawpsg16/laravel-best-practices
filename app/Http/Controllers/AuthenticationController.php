@@ -35,12 +35,8 @@ class AuthenticationController extends Controller
         return $this->authenticationService->registerUser($data);
     }
 
-    public function login(LoginApiRequest $request, $socialAuthCredentials = null)
+    public function login(LoginApiRequest $request)
     {
-        if(!is_null($socialAuthCredentials)){
-            return response()->json(['user' => $socialAuthCredentials, 'isLoggedIn' => true]);
-        }
-
         $credentials = $request->validated();
         return $this->authenticationService->loginUser($credentials);
     }
@@ -64,7 +60,7 @@ class AuthenticationController extends Controller
     public function socialAuthenticationCallback(LoginApiRequest $request){
         try {
             $user = Socialite::driver('google')->user();
-    
+
             $authUser = User::updateOrCreate(
                 ['provider_id' => $user->getId()],
                 [
@@ -74,12 +70,16 @@ class AuthenticationController extends Controller
                 ]
             );
             
-            $this->login($request, $authUser);
+            Auth::loginUsingId($authUser->id);
+
+          
+            session()->flash('auth-user', $authUser->toArray());
+
+            return redirect('/');
 
         } catch (InvalidStateException $exception) {
-            dd($exception,'EXCEPTION');
             // Authentication denied
-            return redirect('login');
+            return redirect('/login');
         }
     }
 }

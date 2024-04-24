@@ -22,6 +22,7 @@ export default defineConfig({
       '@css': path.resolve(__dirname, 'resources/css'), // This sets up the '@' alias to point to the 'src' directory
       '@scss': path.resolve(__dirname, 'resources/scss'), // This sets up the '@' alias to point to the 'src' directory
       '@public': path.resolve(__dirname, 'public/storage'), // This sets up the '@' alias to point to the 'src' directory
+      'vue': 'vue/dist/vue.esm-bundler.js',
       // You can add more aliases as needed
       // For example:
       // 'components': path.resolve(__dirname, 'src/components'),

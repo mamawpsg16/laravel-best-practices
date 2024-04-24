@@ -54,7 +54,6 @@
           let cookie = await axios.get("sanctum/csrf-cookie");
           
           const response = await this.authStore.login(this.email, this.password, this.remembered);
-          console.log(response,'response');
           if(response.status == 200){
             localStorage.setItem('authenticated', true);
             window.location.href = '/';

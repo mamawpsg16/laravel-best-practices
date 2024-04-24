@@ -18,7 +18,7 @@ const routes = [
     { path: '/register', component: Register,  name:'register', meta: { requiresAuth: false } },
     
     /** AUTHENTICATED ROUTES */
-    { path: '/', component: Dashboard, name:'dashboard',meta: { requiresAuth: false } },
+    { path: '/', component: Dashboard, name:'dashboard',meta: { requiresAuth: true } },
     { path: '/forbidden', component: Forbidden, name:'forbidden',meta: { requiresAuth: true } },
     { path: '/about', component: About, name:'about', meta: { requiresAuth: true } },
     { path: '/users/:username', component: User,  name:'user', meta: { requiresAuth: true } },

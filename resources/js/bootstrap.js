@@ -15,9 +15,9 @@ const handleLogout = function() {
 }
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-// axios.defaults.baseURL = 'https://127.0.0.1:8080';
 axios.defaults.withCredentials = true;
 axios.defaults.withXSRFToken = true;
+// axios.defaults.baseURL = 'http://localhost:8000'
 axios.defaults.baseURL = 'http://laravel-best-practices.org'
 window.axios.interceptors.response.use(
   function(response) {
@@ -28,7 +28,7 @@ window.axios.interceptors.response.use(
   switch (error.response.status) {
       case 401 && localStorage.getItem('authenticated'): // Not logged in
       case 419: 
-        handleLogout()
+        // handleLogout()
         break;
       case 403: // Forbidden
         window.location.href = "/forbidden";

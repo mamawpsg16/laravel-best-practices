@@ -8,6 +8,10 @@
     @vite(['resources/js/app.js'])
 </head>
 <body>
-    <div id="app"></div>
+    <div id="app" >
+        <main-app :authuser="{{ $user }}"></main-app>
+    </div>
+    <script>
+    </script>
 </body>
 </html>

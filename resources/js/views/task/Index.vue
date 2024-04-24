@@ -48,6 +48,9 @@
     components:{
       Input
     },  
+    mounted(){
+            this.getPosts();
+        },
     methods: {
       async register() {
         try {
@@ -63,7 +66,15 @@
         } catch (error) {
             this.isCredentialInvalid = error.response.data.error
         }
-      }
+      },
+      async getPosts() {
+          // this.authStore.setAuthenticated(true)
+          try {
+          const response = await axios.get('/api/posts');
+          } catch (error) {
+              console.error(error,'ERROR');
+          }
+      },
     }
   }
   </script>
