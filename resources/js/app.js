@@ -1,10 +1,14 @@
 import './bootstrap';
 
 
+
 import '@css/app.css';
 import '@scss/app.scss';
-import { createApp } from 'vue';
+import * as bootstrap from 'bootstrap'
+window.bootstrap = bootstrap;
+import 'sweetalert2/src/sweetalert2.scss'
 
+import { createApp } from 'vue';
 import App from './App.vue';
 import routes from './routes';
 import { createPinia } from 'pinia'

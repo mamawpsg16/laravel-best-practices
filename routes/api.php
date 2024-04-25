@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\AuthenticationController;
 
 /*
@@ -22,4 +23,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user',[AuthenticationController::class, 'user']);
     Route::get('/posts',[PostController::class, 'index']);
     Route::post('/logout', [AuthenticationController::class,'logout'])->name('logout');
+
+    Route::apiResource('/tasks',TaskController::class);
 }); 

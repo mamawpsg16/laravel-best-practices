@@ -1,34 +1,35 @@
 <template>
-    <nav class="bg-white border-gray-200 dark:bg-gray-900" v-if="isAuthenticated">
-      <div class="flex flex-wrap items-center justify-between mx-auto p-4">
-        <router-link :to="{ name: 'dashboard' }"> <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Flowbite Logo" /></router-link>
-        <button data-collapse-toggle="navbar-default" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-default" aria-expanded="false">
-            <span class="sr-only">Open main menu</span>
-            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
-            </svg>
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom border-gray-200 dark:bg-gray-900">
+    <div class="container">
+        <router-link :to="{ name: 'dashboard' }" class="navbar-brand">
+            Home
+        </router-link>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-default" aria-controls="navbar-default" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="hidden w-full md:block md:w-auto" id="navbar-default">
-          <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-            <li v-if="!isAuthenticated">
-              <router-link :to="{ name: 'login' }">Login</router-link>
-            </li>
-            <li v-if="!isAuthenticated">
-              <router-link :to="{ name: 'register' }">Register</router-link>
-            </li>
-            <li v-if="isAuthenticated">
-              <router-link :to="{ name: 'tasks' }">Tasks</router-link>
-            </li>
-            <li v-if="isAuthenticated">
-              <a href="#">Hello, <span class="text-red-500">{{ userName }}</span></a>
-            </li>
-            <li>
-              <a href="#" v-if="isAuthenticated" @click.prevent="logout" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Logout</a>
-            </li>
-          </ul>
+        <div class="collapse navbar-collapse" id="navbar-default">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li v-if="!isAuthenticated" class="nav-item">
+                    <router-link :to="{ name: 'login' }" class="nav-link">Login</router-link>
+                </li>
+                <li v-if="!isAuthenticated" class="nav-item">
+                    <router-link :to="{ name: 'register' }" class="nav-link">Register</router-link>
+                </li>
+                <li v-if="isAuthenticated" class="nav-item">
+                    <router-link :to="{ name: 'tasks' }" class="nav-link">Tasks</router-link>
+                </li>
+                <li v-if="isAuthenticated" class="nav-item">
+                    <a href="#" class="nav-link">Hello, <span class="text-danger">{{ userName }}</span></a>
+                </li>
+                <li v-if="isAuthenticated" class="nav-item">
+                    <a href="#" @click.prevent="logout" class="nav-link">Logout</a>
+                </li>
+            </ul>
         </div>
-      </div>
-    </nav>
+    </div>
+</nav>
+
+
 </template>
 
 <script>
@@ -42,17 +43,9 @@ import  { useAuthStore }  from '@js/stores/authStore.js';
             }
         },
 
-        async created() {
-            // await this.getUser();
-            if(this.isAuthenticated){
-              this.authStore.getUser();
-            }
-        },
-        
-
         computed:{
             isAuthenticated(){
-              return localStorage.getItem('authenticated') ?? false;
+              return this.authStore.isAuthenticated;
             },
 
             userName() {
@@ -68,21 +61,16 @@ import  { useAuthStore }  from '@js/stores/authStore.js';
                 });
             },
 
-            async getUser() {
-                try {
-                    const response = await axios.get('/api/user').then(response =>{
-                    
-                    this.user = response?.data;
-                });
-                } catch (error) {
-                    console.error(error,'ERROR');
-                }
-            },
-
             navigateUser(){
                 const index = Math.trunc(Math.random() * 3);
                 this.$router.push({name: 'user', params:{username:this.users[index]}})
             }
+        },
+        watch: {
+          // Note: only simple paths. Expressions are not supported.
+          'authStore.isAuthenticated'(newValue) {
+            localStorage.setItem('authenticated',newValue);
+          }
         }
     }
 </script>

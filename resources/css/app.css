@@ -1,4 +1,61 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'flatpickr/dist/flatpickr.css';
+.flip-list-move {
+    transition: transform 0.5s;
+}
+
+.no-move {
+    transition: transform 0s;
+}
+
+.ghost {
+    opacity: 0.5;
+    background: #c8ebfb;
+}
+
+.list-group {
+    min-height: 0px;
+    font-size: 13px;
+}
+
+.list-group-item {
+    cursor: move;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border-radius: 3px!important;
+    border: 1px solid #ccc;
+    background: -webkit-linear-gradient(top, #fafafa 0%, #eee 100%);
+    margin-bottom: 5px;
+}
+
+.list-group-item:hover {
+    color: #2ea8e5;
+    background: #fff;
+}
+
+.list-group-item + .list-group-item {
+    border-top-width: 1px;
+}
+
+.list-group-item:has(> .list-group) > .list-group:has(> .list-group-item) {
+    margin-top: 8px;
+}
+.show-more:hover, 
+.show-less:hover {
+    cursor: pointer;
+}
+
+.dark-mode .list-group-item {
+    background: -webkit-linear-gradient(top, #1f2937 0%, #161d27 100%);
+}
+
+.dark-mode .list-group-item:hover {
+    color: #2ea8e5;
+    background: #324155;
+}
+
+.form-width{
+    width:500px;
+}
 

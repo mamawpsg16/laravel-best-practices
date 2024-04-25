@@ -1,6 +1,6 @@
 
 <template>
-    <input :type="type" :value="modelValue" v-bind="$attrs" class="input" @input="$emit('update:modelValue', $event.target.value)"/>
+    <input :type="type" :value="modelValue" v-bind="$attrs" class="form-control" @input="$emit('update:modelValue', $event.target.value)"/>
 </template>
 <script>
 export default {

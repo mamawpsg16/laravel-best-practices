@@ -15,11 +15,15 @@ const router = createRouter({
 });
 
 const isAuthenticated = () => {
-  return localStorage.getItem('authenticated') === 'true';
+  return localStorage.getItem('authenticated') === 'true' || useAuthStore().isAuthenticated;
 };
 
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
+  if (to.meta.requiresAuth) {
+      await useAuthStore().getUser();
+  }
+
   const isUserAuthenticated = isAuthenticated();
   if (to.meta.requiresAuth && !isUserAuthenticated) {
     // User is not authenticated, redirect to login

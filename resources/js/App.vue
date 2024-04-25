@@ -9,17 +9,30 @@
 
 <script>
 import Navbar from '@js/components/Navbar.vue';
+import { useAuthStore } from '@js/stores/authStore.js';
+
+// import * as bootstrap from "bootstrap";
+// window.bootstrap = bootstrap;
+
 export default {
   props:["authuser"],
+  data() {
+    return {
+      authStore:useAuthStore()
+    }
+  },
   // Vue component logic
   components:{
     Navbar
   },
 
+  methods:{
+   
+  },
+  
   mounted(){
-    console.log(this.authuser,'this.authuser');
     if(this.authuser){
-      localStorage.setItem('authenticated',true);
+      this.authStore.setAuthenticated(true);
     }
   }
 };

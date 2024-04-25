@@ -1,0 +1,87 @@
+<template>
+    <form  @submit.prevent="addTask">
+        <div id="task_due_date" class="mb-2">
+            <label for="">Due Date</label>
+            <flat-pickr v-model="task.due_date" :config="config" class="form-control" placeholder="Select Due Date"/>
+        </div>
+        <div id="task_name" class="mb-2">
+            <label for="">Name <code>*</code></label>
+            <!-- <Input type="text" id="name" class="input" placeholder="Enter task" v-model="task.name" required  @blur="v$.task.name.$touch"/> -->
+            <!-- <Input type="text" id="name" class="input" placeholder="Enter task" v-model="v$.task.name.$model" required  /> -->
+            <Input type="text" id="name" class="input" placeholder="Enter task" v-model="task.name"   />
+            <div v-if="v$.task.name.$dirty" class="text-danger">
+                <span v-for="error of v$.task.name.$errors" :key="error.$uid">
+                    <strong>{{ `${error.$property.charAt(0).toUpperCase()}${error.$property.slice(1)} ${error.$message}`  }}</strong>
+                </span>
+                <!-- <span v-if="v$.task.name.required.$invalid">
+                    Task Name field is required.
+                </span> -->
+            </div>
+        </div>
+        <div id="task_description" class="mb-2"     >
+            <label for="">Description <code>*</code></label>
+            <Input type="text" id="description" class="input" placeholder="Enter description" v-model="task.description" />
+        </div>
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-success form-control mt-2">Save</button>
+        </div>
+    </form>
+</template>
+
+<script>
+// import Modal from '@js/components/Modal.vue';
+import Input from '@js/components/Form/Input.vue'
+import flatPickr from 'vue-flatpickr-component';
+import axios from 'axios';
+import { useVuelidate } from '@vuelidate/core'
+import { required, email } from '@vuelidate/validators'
+    export default {
+        name:'Task Create',
+        setup () {
+            return { v$: useVuelidate({ $autoDirty: true,  $lazy: true }) }
+        },
+        data(){
+            return{
+                config:{
+                    altFormat: 'F j, Y',
+                    altInput: true,
+                    dateFormat: 'Y-m-d',
+                },
+                task:{
+                    name:null,
+                    description:null,
+                    due_date:null
+                }
+            }
+        },
+        validations () {
+            return {
+                task: {
+                    name: { required }, // Matches this.contact.email
+                    description: { required } // Matches this.contact.email
+                }
+            }
+        },
+        methods:{
+            async addTask(){
+                if(!await this.v$.$validate()) return;
+                console.log('SHEESH');
+                axios.post('/api/tasks',{...this.task}).then(function(response){
+                    console.log(response,'response')
+                }).catch((error) =>{
+
+                })
+            },
+        },
+        components: {
+            Input,
+            flatPickr
+            // Modal
+            // rawDisplayer
+        },
+    }
+</script>
+
+<style lang="scss" scoped>
+
+</style>

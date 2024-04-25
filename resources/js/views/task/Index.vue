@@ -1,80 +1,108 @@
 <template>
-    <div class="component-container">
-        <form class="border border-gray-300 rounded-lg p-6 mt-10" @submit.prevent="register">
-          <div class="mb-5">
-            <label for="email">Name</label>
-            <Input type="name" id="name" autocomplete="name" class="input" placeholder="Enter name" v-model="name" required/>
-          </div>
-          <div class="mb-5">
-            <label for="email">Email</label>
-            <Input type="email" id="email" autocomplete="email" class="input" placeholder="Enter email" v-model="email" required/>
-          </div>
-          <div class="mb-5">
-            <label for="password">Password</label>
-            <Input type="password" id="password" class="input" autocomplete="current-password" placeholder="Enter password" v-model="password" required/>
-          </div>
-          <div class="mb-5">
-            <label for="password">Password Confirmation</label>
-            <Input type="password" id="confirm-password" class="input" autocomplete="new-password-confirm" placeholder="Enter password confirmation" v-model="password_confirmation" required/>
-          </div>
-          <div class="flex justify-end items-center my-4">
-            Already have an account ? &nbsp;  <router-link class="rounded text-blue-500  hover:underline hover:cursor-pointer text-md" :to="{ name: 'login' }">Login</router-link>
-          </div>
-          <span v-if="isCredentialInvalid" class="text-red-500 mb-2 block">{{ isCredentialInvalid }}</span>
-          <!-- <div class="flex justify-end mb-2">
-                <a href="#" class="text-end text-white bg-teal-700 hover:bg-teal-900 px-4 py-2 rounded">Google</a>
-          </div> -->
-          <button type="submit" class="auth-btn">Register</button>
-        </form>
+  <!-- <Modal id="testModal" title="testModal"/>
+  <div class="d-flex justify-content-end mt-2">
+    <button type="button" class="btn btn-primary" @click="openModal">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+  </div> -->
+ <div class="row mt-3">
+  <div class="col-md-4 mb-2">
+    <h3 class="text-lg font-semibold mb-2">Create Task</h3>
+    <Create/>
+  </div>
+  <div class="col-md-8">
+    <div class="row">
+      <div class="col-md-6">
+        <h3 class="text-lg font-semibold mb-2">Pending/Ongoing</h3>
+        <draggable
+          class="list-group mt-4"
+          :list="list1"
+          group="task"
+          @change="log"
+          itemKey="name"
+        >
+          <template #item="{ element, index }">
+            <div class="list-group-item bg-gray-100 p-2 mb-1 rounded">
+              {{ element.name }} {{ index }}
+            </div>
+          </template>
+        </draggable>
+      </div>
+      <div class="col-md-6 ml-4">
+        <h3 class="text-lg font-semibold mb-2">Completed</h3>
+        <draggable
+          class="list-group mt-4"
+          :list="list2"
+          group="task"
+          @change="log"
+          itemKey="name"
+        >
+          <template #item="{ element, index }">
+            <div class="list-group-item bg-gray-100 p-2 mb-1 rounded">
+              {{ element.name }} {{ index }}
+            </div>
+          </template>
+        </draggable>
+      </div>
     </div>
-  </template>
-  
-  <script>
-  import Input from '@js/components/Form/Input.vue'
-  import axios from 'axios';
-  import { useAuthStore } from '../../stores/authStore.js';
-  
-  export default {
-    data() {
-      return {
-        name: '',
-        email: '',
-        password: '',
-        password_confirmation:'',
-        isCredentialInvalid:null,
-        authStore:useAuthStore()
-      }
+  </div>
+</div>
+</template>
+<script>
+import draggable from "vuedraggable";
+import Create from './Create.vue';
+import Modal from '@js/components/Modal.vue';
+import Swal from 'sweetalert2/dist/sweetalert2.js'
+
+export default {
+  name: "Task Index",
+  display: "Two Lists",
+  order: 1,
+  components: {
+    draggable,
+    Create,
+    Modal
+    // rawDisplayer
+  },
+  data() {
+    return {
+      showModal: false,
+      list1: [
+        { name: "John", id: 1 },
+        { name: "Joao", id: 2 },
+        { name: "Jean", id: 3 },
+        { name: "Gerard", id: 4 }
+      ],
+      list2: [
+        { name: "Juan", id: 5 },
+        { name: "Edgard", id: 6 },
+        { name: "Johnson", id: 7 }
+      ]
+    };
+  },
+  mounted(){
+    Swal.fire({
+      title: 'Error!',
+      text: 'Do you want to continue',
+      icon: 'error',
+      confirmButtonText: 'Cool'
+    })
+  },
+  methods: {
+    openModal(){
+      const modal_id = document.getElementById("testModal");
+      const modal = bootstrap.Modal.getOrCreateInstance(modal_id);
+      modal.show();
     },
-    components:{
-      Input
-    },  
-    mounted(){
-            this.getPosts();
-        },
-    methods: {
-      async register() {
-        try {
-          let cookie = await axios.get("sanctum/csrf-cookie");
-          
-          const response = await this.authStore.register(this.name, this.email, this.password, this.password_confirmation );
-          if(response.status == 200){
 
-            localStorage.setItem('authenticated', true);
+    handleCancel() {
+      this.showModal = false
+    },
 
-            window.location.href = '/';
-          }
-        } catch (error) {
-            this.isCredentialInvalid = error.response.data.error
-        }
-      },
-      async getPosts() {
-          // this.authStore.setAuthenticated(true)
-          try {
-          const response = await axios.get('/api/posts');
-          } catch (error) {
-              console.error(error,'ERROR');
-          }
-      },
+   
+    log: function(evt) {
+      window.console.log(evt);
     }
   }
-  </script>
+};
+</script>

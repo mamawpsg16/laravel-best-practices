@@ -42,7 +42,12 @@ export const useAuthStore = defineStore('auth', {
 
     async getUser() {
         await axios.get('/api/user').then(response => {
-          this.setUser(response.data.user);
+          const { user } = response.data;
+          if(user){
+            localStorage.setItem('authenticated',true)
+            this.setAuthenticated(true);
+            this.setUser(user);
+          }
         })
         .catch(error => {
           console.error('Error fetching user:', error);

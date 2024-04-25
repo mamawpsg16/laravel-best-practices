@@ -28,7 +28,7 @@ window.axios.interceptors.response.use(
   switch (error.response.status) {
       case 401 && localStorage.getItem('authenticated'): // Not logged in
       case 419: 
-        // handleLogout()
+        handleLogout()
         break;
       case 403: // Forbidden
         window.location.href = "/forbidden";
@@ -36,7 +36,7 @@ window.axios.interceptors.response.use(
  
       case 503: // Down for maintenance
           // Bounce the user to the login screen with a redirect back
-          window.location.reload();
+          // window.location.reload();
           break;
       case 500:
           // alert('Oops, something went wrong!  The team have been notified.');
