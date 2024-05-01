@@ -1,4 +1,6 @@
 @import 'flatpickr/dist/flatpickr.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
 .flip-list-move {
     transition: transform 0.5s;
 }

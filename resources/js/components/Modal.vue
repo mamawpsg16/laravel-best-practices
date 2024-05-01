@@ -28,15 +28,13 @@ export default {
     },
     title: {
       type: String,
-      required: true,
-      default: null
+      default: 'Create'
     },
     footer:{
       type:Boolean,
       default:false
     }
   },
-  emits: ['cancel']
 }
 </script>
 <style scoped>

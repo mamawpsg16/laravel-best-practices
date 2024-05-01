@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->integer('order');
-            $table->date('due_date');
+            $table->date('due_date')->nullable();
             $table->integer('status')->default(0);
             $table->dateTime('start_timestamp')->nullable();
             $table->dateTime('end_timestamp')->nullable();

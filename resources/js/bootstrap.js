@@ -8,11 +8,6 @@ import axios from 'axios';
 import { useAuthStore } from './stores/authStore';
 window.axios = axios;
 
-const handleLogout = function() {
-  localStorage.removeItem('authenticated');
-  useAuthStore().logout();
-  window.location.href = "/login";
-}
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 axios.defaults.withCredentials = true;
@@ -26,9 +21,8 @@ window.axios.interceptors.response.use(
   },
   function (error) {
   switch (error.response.status) {
-      case 401 && localStorage.getItem('authenticated'): // Not logged in
-      case 419: 
-        handleLogout()
+      case 401: // Not logged in
+        localStorage.removeItem('authenticated');
         break;
       case 403: // Forbidden
         window.location.href = "/forbidden";

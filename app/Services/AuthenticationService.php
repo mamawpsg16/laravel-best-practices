@@ -30,7 +30,7 @@ class AuthenticationService{
 
                 return response()->json(['user' => $user, 'isLoggedIn' => true]);
             }
-            return response()->json(['error' => 'Invalid credentials', 'isLoggedIn' => false], 401);
+            return response()->json(['error' => 'Invalid credentials', 'isLoggedIn' => false],422);
         });
     }
 }

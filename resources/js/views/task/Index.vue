@@ -1,102 +1,93 @@
 <template>
-  <!-- <Modal id="testModal" title="testModal"/>
-  <div class="d-flex justify-content-end mt-2">
-    <button type="button" class="btn btn-primary" @click="openModal">
-      <i class="fa-solid fa-plus"></i>
-    </button>
-  </div> -->
- <div class="row mt-3">
-  <div class="col-md-4 mb-2">
-    <h3 class="text-lg font-semibold mb-2">Create Task</h3>
-    <Create/>
-  </div>
-  <div class="col-md-8">
-    <div class="row">
-      <div class="col-md-6">
-        <h3 class="text-lg font-semibold mb-2">Pending/Ongoing</h3>
-        <draggable
-          class="list-group mt-4"
-          :list="list1"
-          group="task"
-          @change="log"
-          itemKey="name"
-        >
-          <template #item="{ element, index }">
-            <div class="list-group-item bg-gray-100 p-2 mb-1 rounded">
-              {{ element.name }} {{ index }}
-            </div>
-          </template>
-        </draggable>
-      </div>
-      <div class="col-md-6 ml-4">
-        <h3 class="text-lg font-semibold mb-2">Completed</h3>
-        <draggable
-          class="list-group mt-4"
-          :list="list2"
-          group="task"
-          @change="log"
-          itemKey="name"
-        >
-          <template #item="{ element, index }">
-            <div class="list-group-item bg-gray-100 p-2 mb-1 rounded">
-              {{ element.name }} {{ index }}
-            </div>
-          </template>
-        </draggable>
-      </div>
+  <create @update-list="taskAdded"></create>
+  <div class="row mt-3">
+    <div class="d-flex justify-content-end mt-2">
+     <button type="button" class="btn btn-primary me-2" @click="saveTasks">
+       <i class="bi bi-floppy"></i>
+     </button>
+     <button type="button" class="btn btn-primary text-white" @click="createTask">
+      <i class="bi bi-plus-circle"></i>
+     </button>
     </div>
+    <div class="col-md-4 mb-2">
+      <h3 class="text-lg font-semibold">Pending</h3>
+      <Draggable :list="pending" Itemkey="pending"></Draggable>
+    </div>
+    <div class="col-md-4">
+      <h3 class="text-lg font-semibold">Ongoing</h3>
+      <Draggable :list="ongoing" Itemkey="ongoing"></Draggable>
+    </div>
+    <div class="col-md-4 ml-4">
+      <h3 class="text-lg font-semibold">Completed</h3>
+      <Draggable :list="completed" Itemkey="completed"></Draggable>
+    </div>
+   
   </div>
-</div>
 </template>
 <script>
-import draggable from "vuedraggable";
 import Create from './Create.vue';
-import Modal from '@js/components/Modal.vue';
-import Swal from 'sweetalert2/dist/sweetalert2.js'
-
+import Draggable from '@js/components/Draggable/Index.vue';
 export default {
   name: "Task Index",
-  display: "Two Lists",
-  order: 1,
   components: {
-    draggable,
     Create,
-    Modal
-    // rawDisplayer
+    Draggable
   },
   data() {
     return {
       showModal: false,
-      list1: [
-        { name: "John", id: 1 },
-        { name: "Joao", id: 2 },
-        { name: "Jean", id: 3 },
-        { name: "Gerard", id: 4 }
-      ],
-      list2: [
-        { name: "Juan", id: 5 },
-        { name: "Edgard", id: 6 },
-        { name: "Johnson", id: 7 }
-      ]
+      pending: [],
+      ongoing: [],
+      completed: []
     };
   },
-  mounted(){
-    Swal.fire({
-      title: 'Error!',
-      text: 'Do you want to continue',
-      icon: 'error',
-      confirmButtonText: 'Cool'
-    })
+  async created(){  
+    await this.getData();
   },
   methods: {
-    openModal(){
-      const modal_id = document.getElementById("testModal");
+    
+    taskAdded(task){
+      const status = {0:'pending', 1: 'ongoing', 2: 'completed'};
+      this[status[task.status]].push(task);
+    },
+
+    createTask(){
+      const modal_id = document.getElementById("create-task-modal");
       const modal = bootstrap.Modal.getOrCreateInstance(modal_id);
       modal.show();
     },
 
+    saveTasks(){
+    },
+
     handleCancel() {
       this.showModal = false
+    },
+
+    gropedData(data) {
+      // Initialize an empty map to hold the grouped data
+      const groupDetails = new Map(Array.from({ length: 3 }, (_, i) => [i, []]));
+      // Iterate over each item in the data
+      for (const item of data) {
+        const status = item.status;
+        // Push the current item to the array corresponding to its status in the map
+        if (groupDetails.has(status)) {
+          groupDetails.get(status).push(item);
+        }
+      }
+      return Object.fromEntries(groupDetails);
+    },
+
+    async getData(){
+      await axios.get('/api/tasks').then((response)=>{
+          const { data } = response.data;
+          const { '0': pending, '1': ongoing, '2': completed } = this.gropedData(data);
+          this.pending = pending;
+          this.ongoing = ongoing;
+          this.completed = completed;
+       }).catch((error) =>{
+
+      })
     },
 
    

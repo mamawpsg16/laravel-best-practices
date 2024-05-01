@@ -15,6 +15,7 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
     async register(name, email, password, passwordConfirmation){
+        await axios.get("sanctum/csrf-cookie");
         return await axios.post('/register', {
           name: name,
           email: email,
@@ -24,6 +25,8 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async login(email, password, remembered){
+        await axios.get("sanctum/csrf-cookie");
+
         return await axios.post('/login', {
           email: email,
           password: password,
@@ -47,7 +50,9 @@ export const useAuthStore = defineStore('auth', {
             localStorage.setItem('authenticated',true)
             this.setAuthenticated(true);
             this.setUser(user);
+            return;
           }
+          localStorage.removeItem('authenticated')
         })
         .catch(error => {
           console.error('Error fetching user:', error);
