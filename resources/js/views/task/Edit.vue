@@ -1,7 +1,7 @@
 <template>
-    <Modal id="create-task-modal">
+    <Modal id="edit-task-modal" :title="task.name">
         <template #content>
-            <form  @submit.prevent="addTask">
+            <form  @submit.prevent="update">
                 <div id="task_due_date" class="mb-2">
                     <label for="">Due Date</label>
                     <flat-pickr v-model="task.due_date" :config="config"  :class="{'border border-danger': checkInputValidity('task', 'due_date', ['required'])}" class="form-control" placeholder="Select Due Date"/>
@@ -25,12 +25,8 @@
                     <Input type="text" id="description" class="input" placeholder="Enter description" v-model="task.description" />
                 </div>
 
-                <div id="task_status" class="mb-2">
-                    <label for="">Status</label>
-                    <multiselect v-model="task.status" deselect-label="Can't remove this value" track-by="label" label="label" placeholder="Select status" :options="options" :allow-empty="false"></multiselect>
-                </div>
                 <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn btn-success form-control mt-2" :disabled="isSaving">Save</button>
+                    <button type="submit" class="btn btn-success form-control mt-2" :disabled="isUpdating">Update</button>
                 </div>
             </form>
         </template>
@@ -47,16 +43,20 @@ import { required } from '@vuelidate/validators'
 import { checkValidity } from '@js/helpers/Vuelidate.js';
 import Swal from 'sweetalert2/dist/sweetalert2.js'
 import Multiselect from 'vue-multiselect'
-
     export default {
-        name:'Task Create',
+        name:'Task Edit',
+        props:{
+            data:{
+                type:[Array, Object]
+            }
+        },
         setup () {
             return { v$: useVuelidate({ $autoDirty: true,  $lazy: true }) }
         },
-        emits: ['updateList'],
+        emits: ['updateTask'],
         data(){
             return{
-                isSaving:false,
+                isUpdating:false,
                 config:{
                     altFormat: 'F j, Y',
                     altInput: true,
@@ -65,13 +65,8 @@ import Multiselect from 'vue-multiselect'
                 task:{
                     name:null,
                     description:null,
-                    due_date:new Date().toISOString().substring(0, 10),
-                    status:{ label: 'Pending', value: 0 }
+                    due_date:null,
                 },
-                options: [
-                    { label: 'Pending', value: 0 },
-                    { label: 'Ongoing', value: 1 },
-                ]
             }
         },
         components: {
@@ -93,30 +88,15 @@ import Multiselect from 'vue-multiselect'
                 return checkValidity(this.v$, parentProperty, dataProperty, validations)
             },
 
-            resetForm(){
-                for (const key in this.task) {
-                    if(key !== 'status' && key !== 'due_date'){
-                        this.task[key] = null;
-                    }else if (key == 'status'){
-                        this.task[key] = { label: 'Pending', value: 0 };
-                    }else if (key == 'due_date'){
-                        this.task[key] = new Date().toISOString().substring(0, 10);
-                    }
-                }
-                this.v$.$reset()
-            },
-            async addTask(){
+            async update(){
                 if(!await this.v$.$validate()) return;
-                this.isSaving = true;
-                let tasks = {...this.task};
-                tasks.status = tasks.status.value;
-                axios.post('/api/tasks',{...tasks}).then((response)=>{
+                this.isUpdating = true;
+                axios.put(`/api/tasks/${this.task.id}`,{...this.task}).then((response)=>{
                     if(response.status == 200){
                         const { data } = response.data;
-                        this.resetForm()
                         Swal.fire({
-                            title: "Task Added!",
-                            text: "Added Succesfully",
+                            title: "Task Updated!",
+                            text: "Updated Succesfully",
                             icon: "success",
                             timer:2000,
                             showConfirmButton: false,
@@ -124,14 +104,21 @@ import Multiselect from 'vue-multiselect'
                             position: "bottom-end",
                             timerProgressBar: true,
                         });
-                        this.isSaving = false;
-                        this.$emit('updateList', data)
+                        this.isUpdating = false;
+                        this.$emit('updateTask', data)
                     }
                 }).catch((error) =>{
 
                 })
             },
         },
+        watch: {
+            data: {
+                handler(newValue, oldValue) {
+                    this.task = {...newValue};
+                },
+            }
+        }
     }
 </script>
 

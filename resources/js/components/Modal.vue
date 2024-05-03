@@ -1,13 +1,13 @@
 <template>
   <Teleport to="#modals">
-    <div class="modal fade" :id="id" tabindex="-1" :aria-labelledby="`${id}Label`" aria-hidden="true">
+    <div class="modal fade" :class="modal_size" :id="id" tabindex="-1":aria-labelledby="`${id}Label`" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h1 class="modal-title fs-5" >{{  title }}</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
+          <div class="modal-body" style="margin: 0px; padding-top: 0px;" >
             <slot name="content"></slot>
           </div>
           <div class="modal-footer" v-if="footer">
@@ -33,6 +33,10 @@ export default {
     footer:{
       type:Boolean,
       default:false
+    },
+    modal_size:{
+      type:String,
+      default:'modal-md'
     }
   },
 }

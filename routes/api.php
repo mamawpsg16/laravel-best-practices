@@ -25,4 +25,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthenticationController::class,'logout'])->name('logout');
 
     Route::apiResource('/tasks',TaskController::class);
+    Route::prefix('tasks')->group(function () {
+        Route::post('/update-status',[TaskController::class, 'updateStatus']);
+        Route::post('/update-order',[TaskController::class, 'updateOrder']);
+        Route::put('/restore/{task}',[TaskController::class, 'restoreTask']);
+    });
 }); 

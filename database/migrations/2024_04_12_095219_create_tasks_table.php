@@ -21,7 +21,6 @@ return new class extends Migration
             $table->integer('status')->default(0);
             $table->dateTime('start_timestamp')->nullable();
             $table->dateTime('end_timestamp')->nullable();
-            $table->dateTime('completion_date')->nullable();
             $table->timestamps();
         });
     }

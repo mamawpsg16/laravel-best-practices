@@ -1,6 +1,7 @@
 @import 'flatpickr/dist/flatpickr.css';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
-
+@import 'vue-multiselect/dist/vue-multiselect.css';
+@import "ag-grid-community/styles/ag-grid.css";
 .flip-list-move {
     transition: transform 0.5s;
 }

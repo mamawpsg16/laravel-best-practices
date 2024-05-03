@@ -1,54 +1,164 @@
 <template>
-  <create @update-list="taskAdded"></create>
+  <Create @update-list="taskAdded"></Create>
+  <Edit @update-task="taskUpdated" :data="data"></Edit>
+  <CompletedTasks :tasks="completed" @restored-task="taskAdded" ></CompletedTasks>
   <div class="row mt-3">
     <div class="d-flex justify-content-end mt-2">
-     <button type="button" class="btn btn-primary me-2" @click="saveTasks">
+      <button type="button" class="btn btn-primary text-white me-2" @click="createTask">
+       <i class="bi bi-plus-circle"></i>
+      </button>
+      <button type="button" class="btn btn-primary text-white me-2" @click="showCompletedTasks">
+       <i class="bi bi-list-check"></i>
+      </button>
+      <button type="button" class="btn btn-info text-white me-2" v-if="showSaveOrderBtn" @click="updateTasksOrder"  title="Save order changes">
        <i class="bi bi-floppy"></i>
-     </button>
-     <button type="button" class="btn btn-primary text-white" @click="createTask">
-      <i class="bi bi-plus-circle"></i>
-     </button>
+      </button>
     </div>
-    <div class="col-md-4 mb-2">
-      <h3 class="text-lg font-semibold">Pending</h3>
-      <Draggable :list="pending" Itemkey="pending"></Draggable>
+    <div class="col-md-6">
+      <div class="d-flex justify-content-between align-items-center">
+        <h3 class="text-lg font-semibold">Pending</h3>
+        <span class="text-right">Count : {{ pendingCount }}</span>
+      </div>
+      <div class="col-md-12 mb-2" style="max-height: calc(100vh - 180px); overflow-y: auto;">
+        <Draggable :list="pending" Itemkey="pending" group="task" :withButtons="true" @add="updateStatus(0, $event)" @change="orderChanged = true"  @edit-item="editItem">
+        </Draggable>
+      </div>
     </div>
-    <div class="col-md-4">
-      <h3 class="text-lg font-semibold">Ongoing</h3>
-      <Draggable :list="ongoing" Itemkey="ongoing"></Draggable>
+    <div class="col-md-6">
+      <div class="d-flex justify-content-between align-items-center">
+        <h3 class="text-lg font-semibold">Ongoing</h3>
+        <span class="text-right">Count : {{ ongoingCount }}</span>
+      </div>
+      <div class="col-md-12 mb-2" style="max-height: calc(100vh - 180px); overflow-y: auto;">
+        <Draggable :list="ongoing" Itemkey="ongoing" group="task" :withButtons="true" @add="updateStatus(1,$event)" @change="orderChanged = true" @edit-item="editItem" @updateCompletedTasks="updateCompletedTasks"></Draggable>
+      </div>
     </div>
-    <div class="col-md-4 ml-4">
-      <h3 class="text-lg font-semibold">Completed</h3>
-      <Draggable :list="completed" Itemkey="completed"></Draggable>
-    </div>
-   
   </div>
 </template>
 <script>
 import Create from './Create.vue';
+import Edit from './Edit.vue';
+import Swal from 'sweetalert2/dist/sweetalert2.js'
+import CompletedTasks from './Components/Completed.vue';
 import Draggable from '@js/components/Draggable/Index.vue';
+import axios from 'axios';
 export default {
   name: "Task Index",
   components: {
     Create,
-    Draggable
+    Draggable,
+    CompletedTasks,
+    Edit
   },
   data() {
     return {
       showModal: false,
       pending: [],
       ongoing: [],
-      completed: []
+      completed: [],
+      data:[],
+      statuses:{0:'Pending', 1: 'Ongoing'},
+      item_index:null,
+      item_key:null,
+      orderChanged:false
     };
   },
   async created(){  
     await this.getData();
   },
+  computed:{
+    pendingCount(){
+      return this.pending.length;
+    },
+    ongoingCount(){
+      return this.ongoing.length;
+    },
+    showSaveOrderBtn(){
+      return this.orderChanged;
+    }
+  },
   methods: {
-    
-    taskAdded(task){
-      const status = {0:'pending', 1: 'ongoing', 2: 'completed'};
-      this[status[task.status]].push(task);
+    formatData(data){
+  
+      return {
+          ...data,
+          status:{label: this.statuses[data.status], value:data.status}
+        } 
+    },
+
+    async updateStatus(status, event) {
+      const index = event.newIndex;
+      const tasks = this[this.statuses[status].toLowerCase()];
+      const id = tasks[index].id;
+      await axios.post('/api/tasks/update-status',{id:id, status:status}).then((res) =>{
+      }).catch((err) =>{
+        console.log(err);
+      });
+    },
+
+    async updateTasksOrder() {
+      const ongoing = this.formatTasksOrder(this.ongoing);
+      const pending = this.formatTasksOrder(this.pending);
+      const data = [...ongoing, ...pending];
+      await axios.post('/api/tasks/update-order',{tasks:data}).then((res) =>{
+        Swal.fire({
+                title: "Order Updated!",
+                text: "Tasks Orders Updated Succesfully",
+                icon: "success",
+                timer:2000,
+                showConfirmButton: false,
+                toast:true,
+                position: "bottom-end",
+                timerProgressBar: true,
+            });
+        this.orderChanged = false;
+      }).catch((err) =>{
+        console.log(err);
+      });
+    },
+
+    formatTasksOrder(tasks){
+      if(tasks.length){
+        const data = tasks.map((task, index) =>({
+          id:task.id,
+          order: index + 1,
+        }))
+        return data;
+      }
+      return [];
+    },
+
+    taskAdded(task, restore = false){
+      if(!restore){
+        this[this.statuses[task.status].toLowerCase()].unshift(task);
+      }else{
+        this.ongoing.push(task[0]);
+      }
+    },
+
+    taskUpdated(task){
+      this[this.item_key][this.item_index] = task;
+    },
+
+    updateCompletedTasks(task){
+      const formattedTask = {
+        ...task,
+        due_date_text:this.formatDate(task.due_date),
+        start_date_text:this.formatDate(task.start_timestamp),
+        completion_date_text:this.formatDate(task.end_timestamp),
+      }
+      this.completed.unshift(formattedTask);
+    },
+
+    editItem(task, index, key){
+      const data = this.formatData(task);
+      this.data = data;
+      this.item_index = index;
+      this.item_key = key;
+      const modal_id = document.getElementById("edit-task-modal");
+      const modal = bootstrap.Modal.getOrCreateInstance(modal_id);
+      modal.show();
+      this.getData();
     },
 
     createTask(){
@@ -57,7 +167,10 @@ export default {
       modal.show();
     },
 
-    saveTasks(){
+    showCompletedTasks(){
+      const modal_id = document.getElementById("completed-tasks-modal");
+      const modal = bootstrap.Modal.getOrCreateInstance(modal_id);
+      modal.show();
     },
 
     handleCancel() {
@@ -78,22 +191,43 @@ export default {
       return Object.fromEntries(groupDetails);
     },
 
+    formatDate(datetime, timestamp=true){
+      let options = { year: 'numeric', month: 'long', day: 'numeric' };
+      if(timestamp == true){
+        const time = {
+          hour: 'numeric',
+          minute: 'numeric',
+          second: 'numeric'
+        }
+        options = {...options,...time }
+      }
+      const date = new Date(datetime);
+      const formattedDate = date.toLocaleDateString('en-US', options);
+
+      return formattedDate;
+    },
+
     async getData(){
       await axios.get('/api/tasks').then((response)=>{
           const { data } = response.data;
           const { '0': pending, '1': ongoing, '2': completed } = this.gropedData(data);
           this.pending = pending;
           this.ongoing = ongoing;
-          this.completed = completed;
+          console.log(completed,'completed');
+          const completedFormattedData = completed?.map(task => ({
+            ...task,
+            due_date_text:this.formatDate(task.due_date),
+            start_date_text:this.formatDate(task.start_timestamp),
+            completion_date_text:this.formatDate(task.end_timestamp),
+          }));
+          console.log(completedFormattedData,'completedFormattedData');
+          this.completed = completedFormattedData;
        }).catch((error) =>{
 
       })
     },
-
-   
-    log: function(evt) {
-      window.console.log(evt);
-    }
   }
 };
 </script>
+<style scoped>
+</style>
