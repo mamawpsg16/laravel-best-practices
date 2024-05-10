@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-
+import axios from 'axios';
 // Declare your store
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -10,10 +10,35 @@ export const useAuthStore = defineStore('auth', {
   getters: {
     userName(state) {
       return state.user ? state.user.name : '';
-    }
+    },
+    isUserAuthenticated(state){
+      return state.isAuthenticated;
+    },
+    isUserVerified(state){
+      return state.user?.isVerified;
+    },
+    isSocialAuthenticated(state){
+      return state.user?.provider;
+    },
   },
 
   actions: {
+    async resetPassword(email){
+      await axios.get("sanctum/csrf-cookie");
+      return await axios.post('/forgot-password', {
+        email: email,
+      });
+    },
+    async resetPasswordConfirmation(email, password, passwordConfirmation, token){
+        await axios.get("sanctum/csrf-cookie");
+        return await axios.post('/reset-password/confirmation', {
+          email: email,
+          password: password,
+          password_confirmation : passwordConfirmation,
+          token: token,
+        });
+    },
+
     async register(name, email, password, passwordConfirmation){
         await axios.get("sanctum/csrf-cookie");
         return await axios.post('/register', {
@@ -33,23 +58,42 @@ export const useAuthStore = defineStore('auth', {
           remembered:remembered
         });
     },
+    
 
     async logout(){
       try {
-          const response = await axios.post('/logout');
-          localStorage.removeItem('authenticated');
+          await axios.post('/api/logout').then((response =>{
+            if(response.status == 200) {
+              localStorage.removeItem('authenticated');
+              this.setAuthenticated(false);
+              this.setUser(null);
+              window.location.href = '/login'
+            }
+          }));
         } catch (error) {
           console.error(error,'ERROR');
         }
     },
 
+    async changePassword(password, new_password, new_password_confirmation){
+      try {
+          const response = await axios.post('api/user/change-password', {
+            password: password,
+            new_password: new_password,
+            new_password_confirmation:new_password_confirmation
+          });
+          return response;
+        } catch (error) {
+          return error;
+        }
+    },
+
     async getUser() {
         await axios.get('/api/user').then(response => {
-          const { user } = response.data;
-          if(user){
+          if(response?.data && response?.data?.user ){
             localStorage.setItem('authenticated',true)
             this.setAuthenticated(true);
-            this.setUser(user);
+            this.setUser(response.data.user);
             return;
           }
           localStorage.removeItem('authenticated')

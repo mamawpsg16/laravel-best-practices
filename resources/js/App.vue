@@ -3,7 +3,7 @@
 
   <div class="container mx-auto">
       <Navbar></Navbar>
-      <router-view />
+      <router-view/>
   </div>
 </template>
 
@@ -23,7 +23,7 @@ export default {
   },
   // Vue component logic
   components:{
-    Navbar
+    Navbar,
   },
 
   methods:{

@@ -1,6 +1,6 @@
 <template>
   <Teleport to="#modals">
-    <div class="modal fade" :class="modal_size" :id="id" tabindex="-1":aria-labelledby="`${id}Label`" aria-hidden="true">
+    <div class="modal fade" :class="modal_size" :id="id" tabindex="-1":aria-labelledby="`${id}Label`" aria-hidden="true" :data-bs-backdrop="enableBackdrop ? 'static' : null" :data-bs-keyboard="disableEscape">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -37,6 +37,14 @@ export default {
     modal_size:{
       type:String,
       default:'modal-md'
+    },
+    enableBackdrop:{
+      type:Boolean,
+      default:false
+    },
+    disableEscape:{
+      type:Boolean,
+      default:true
     }
   },
 }

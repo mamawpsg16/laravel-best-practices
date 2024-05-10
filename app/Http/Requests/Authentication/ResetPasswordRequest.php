@@ -4,7 +4,7 @@ namespace App\Http\Requests\Authentication;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterApiRequest extends FormRequest
+class ResetPasswordRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,10 +22,7 @@ class RegisterApiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ["required","string","max:255"],
-            'email' => ["required","email","unique:users,email"],
-            'password' => ["required","string","min:8","confirmed"],
-            'password_confirmation' => ["required_with:password"],
+            'email' => ['required', 'email', 'exists:users,email']
         ];
     }
 }

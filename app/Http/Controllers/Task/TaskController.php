@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Task;
 
-use App\Http\Requests\Task\TaskStoreRequest;
-use App\Http\Requests\Task\TaskUpdateRequest;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Task\TaskStoreRequest;
+use App\Http\Requests\Task\TaskUpdateRequest;
 
 class TaskController extends Controller
 {
@@ -74,7 +76,6 @@ class TaskController extends Controller
         foreach ($tasks as $task) {
             // Find the task by ID
             $data = Task::find($task['id']);
-        
             if ($task) {
                 // Update the order column
                 $data->order = $task['order'];
@@ -103,4 +104,14 @@ class TaskController extends Controller
 
         return response(['data' => $task]);
     }
+
+    public function getTaskStatusDetails(){
+        $taskStatusCounts = Task::select(DB::raw('COUNT(id) as count'), 'status')
+                                ->groupBy('status')
+                                ->orderBy('status')
+                                ->get()
+                                ->toArray();
+        return response(['data' => $taskStatusCounts]);
+    }
+    
 }

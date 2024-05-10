@@ -14,27 +14,39 @@ const router = createRouter({
   }
 });
 
-const isAuthenticated = () => {
-  return localStorage.getItem('authenticated') === 'true' || useAuthStore().isAuthenticated;
-};
-
 
 router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore();
+
+  // Fetch the user data if route requires authentication
   if (to.meta.requiresAuth) {
-      await useAuthStore().getUser();
+    await authStore.getUser();
   }
 
-  const isUserAuthenticated = isAuthenticated();
+  const isUserAuthenticated = authStore.isUserAuthenticated;
+  // Prevent infinite loop for the email-verification route
+  if (to.name === 'email-verification') {
+    if (isUserAuthenticated && authStore.user && !authStore.user.isVerified) {
+      next(); // Allow access to the email-verification route
+    } else {
+      next({ name: 'dashboard' }); // Redirect to the dashboard if user is verified
+    }
+    return;
+  }
+
   if (to.meta.requiresAuth && !isUserAuthenticated) {
     // User is not authenticated, redirect to login
-    next({ name: 'login' })
+    next({ name: 'login' });
+  } else if (to.meta.requiresAuth && isUserAuthenticated && authStore.user && !authStore.user.isVerified) {
+    // User is authenticated but not verified, redirect to email verification
+    next({ name: 'email-verification' });
   } else if (!to.meta.requiresAuth && isUserAuthenticated) {
     // User is authenticated, prevent access to login route
-    next({ name: 'dashboard' })
+    next({ name: 'dashboard' });
   } else {
-    next()
+    next();
   }
-})
+});
 
 
 export default router;

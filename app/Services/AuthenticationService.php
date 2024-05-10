@@ -5,6 +5,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\Events\Registered;
 
 class AuthenticationService{
     public function registerUser($data){
@@ -17,7 +18,9 @@ class AuthenticationService{
             session()->regenerate();
             
             Auth::login($user);
-    
+            
+            event(new Registered($user));
+
             return response(['status' => 'success']);
         });
     }

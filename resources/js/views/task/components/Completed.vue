@@ -1,5 +1,5 @@
 <template>
-    <Modal id="completed-tasks-modal" title="Completed Tasks" modal_size="modal-lg">
+    <Modal id="completed-tasks-modal" title="Completed Tasks" modal_size="modal-lg" :enableBackdrop="true" :disableEscape="false">
         <template #content>
             <!-- <div class="d-flex justify-content-end mb-2">
                 <div class="col-md-6">
@@ -71,7 +71,6 @@ import axios from 'axios';
                         this.$emit('restoredTask',task, true)
                     }
                 }).catch((error) => {
-                    console.log(error,'error');
                 });
             }
           

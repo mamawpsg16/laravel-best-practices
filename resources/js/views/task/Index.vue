@@ -92,7 +92,6 @@ export default {
       const id = tasks[index].id;
       await axios.post('/api/tasks/update-status',{id:id, status:status}).then((res) =>{
       }).catch((err) =>{
-        console.log(err);
       });
     },
 
@@ -113,7 +112,6 @@ export default {
             });
         this.orderChanged = false;
       }).catch((err) =>{
-        console.log(err);
       });
     },
 
@@ -213,14 +211,12 @@ export default {
           const { '0': pending, '1': ongoing, '2': completed } = this.gropedData(data);
           this.pending = pending;
           this.ongoing = ongoing;
-          console.log(completed,'completed');
           const completedFormattedData = completed?.map(task => ({
             ...task,
             due_date_text:this.formatDate(task.due_date),
             start_date_text:this.formatDate(task.start_timestamp),
             completion_date_text:this.formatDate(task.end_timestamp),
           }));
-          console.log(completedFormattedData,'completedFormattedData');
           this.completed = completedFormattedData;
        }).catch((error) =>{
 

@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests\Authentication;
 
+use App\Rules\MatchNewPassword;
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterApiRequest extends FormRequest
+class ChangePasswordRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,10 +23,9 @@ class RegisterApiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ["required","string","max:255"],
-            'email' => ["required","email","unique:users,email"],
-            'password' => ["required","string","min:8","confirmed"],
-            'password_confirmation' => ["required_with:password"],
+            'password' => ['required', 'current_password:web'],
+            'new_password' => ['required', 'min:8', new MatchNewPassword],
+            'new_password_confirmation' => ['required'],
         ];
     }
 }
