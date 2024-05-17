@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\OOPController;
+use App\Http\Controllers\SolidController;
 use App\Http\Controllers\Spa\ViewController;
 use App\Http\Controllers\Auth\AuthenticationController;
 
@@ -19,7 +21,8 @@ Route::get('/auth/google/redirect', [AuthenticationController::class, 'socialAut
 Route::get('/auth/google/callback',[AuthenticationController::class, 'socialAuthenticationCallback'])->name('auth.google.callback');
 Route::post('/login', [AuthenticationController::class, 'login'])->name('login');
 Route::post('/register',[AuthenticationController::class,'register']);
-
+Route::get("oop", [OOPController::class, 'index']);
+Route::get("solid", [SolidController::class, 'index']);
 Route::prefix('email')->group(function () {
     Route::get('/verify/{id}/{hash}',[AuthenticationController::class,'verify'])->middleware(['auth:sanctum','signed'])->name('verification.verify');
 });

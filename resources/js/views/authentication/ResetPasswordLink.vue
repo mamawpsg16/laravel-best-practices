@@ -72,13 +72,10 @@
         this.v$.$reset();
       },
       async resendVerificationLink() {
-        console.log(this.v$,'this.v$');
         try {
           if(this.v$.email.$errors.length > 0) return;
-          console.log(this.v$,'PASOK');
           this.isResetLinkSent = true;
           const response = await this.authStore.resetPassword(this.email);
-          console.log(response,'response');
           if(response.status == 200){
             this.isResetLinkSent = false;
             Swal.fire({

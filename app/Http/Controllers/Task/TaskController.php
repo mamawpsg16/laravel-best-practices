@@ -16,8 +16,9 @@ class TaskController extends Controller
      */
     public function index()
     {
-       $data = Task::orderBy('status')->orderBy('order')->get();
-
+        $data = Task::orderBy('status')->orderBy('order')->get();
+        // $details = DB::select('CALL spGetTasks()');
+        // dd($details);
        return response(['data' => $data]);
     }
 
@@ -111,6 +112,7 @@ class TaskController extends Controller
                                 ->orderBy('status')
                                 ->get()
                                 ->toArray();
+        DD($taskStatusCounts);
         return response(['data' => $taskStatusCounts]);
     }
     

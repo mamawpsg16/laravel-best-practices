@@ -16,7 +16,7 @@ class ViewController extends Controller
     public function __invoke(Request $request)
     {
         $pathInfo = $request->getPathInfo();
-        if(Auth::check() && $pathInfo == '/register' || $pathInfo == '/login' || Str::startsWith($pathInfo, '/reset-password')){
+        if(Auth::check() && ($pathInfo == '/register' || $pathInfo == '/login' || Str::startsWith($pathInfo, '/reset-password'))){
             return redirect('/');
         }
         $user = session('auth-user');
