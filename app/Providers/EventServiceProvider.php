@@ -6,6 +6,8 @@ use App\Events\EmailVerification;
 use App\Events\ResetPassword;
 use App\Listeners\EmailVerificationNotifaction;
 use App\Listeners\ResetPasswordNotification;
+use App\Events\Example;
+use App\Listeners\ExampleSender;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -27,6 +29,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         EmailVerification::class => [
             EmailVerificationNotifaction::class,
+        ],
+        Example::class => [
+            ExampleSender::class,
         ],
     ];
 

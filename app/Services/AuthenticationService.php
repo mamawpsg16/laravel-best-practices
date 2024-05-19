@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Events\Example;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +31,7 @@ class AuthenticationService{
                 session()->regenerate();
 
                 $user = Auth::user();
-
+                $event = event(new Example());
                 return response()->json(['user' => $user, 'isLoggedIn' => true]);
             }
             return response()->json(['error' => 'Invalid credentials', 'isLoggedIn' => false],422);

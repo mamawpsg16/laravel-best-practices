@@ -17,7 +17,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
-
+  console.log(authStore,'authStore', to,'to');
   // Fetch the user data if route requires authentication
   if (to.meta.requiresAuth) {
     await authStore.getUser();
