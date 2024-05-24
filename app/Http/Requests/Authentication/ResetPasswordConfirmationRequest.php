@@ -24,7 +24,8 @@ class ResetPasswordConfirmationRequest extends FormRequest
     {
         return [
             'email' => ['required', 'email', 'exists:users,email'],
-            'password' => ["required","string","min:8","confirmed",  new CheckPasswordIfUnique],
+            // 'password' => ["required","string","min:8","confirmed",  new CheckPasswordIfUnique],
+            'password' => ["required","string","min:8","confirmed"],
             'password_confirmation' => ["required_with:password"],
             'token' => ["required"],
 

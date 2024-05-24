@@ -97,8 +97,8 @@
             if(!await this.v$.$validate()) return;         
             this.isProcessing = true;
             const response = await this.authStore.resetPasswordConfirmation(this.$route.query.email, this.password, this.password_confirmation, this.$route.params.token);
-            console.log(response,'response');
-            if(response.status == 200){
+            console.log(response.data,'response.data');
+            if(response.data.isReset){
                 // localStorage.setItem('authenticated', true);
                 this.isProcessing = false;
                 this.resetForm();
@@ -110,6 +110,16 @@
                     toast:true,
                     position: "bottom-end",
                     timerProgressBar: true,
+                });
+
+                this.$router.push({name:'login'});
+            }else{
+                // localStorage.setItem('authenticated', true);
+                this.isProcessing = false;
+                Swal.fire({
+                    title: response.data.message,
+                    icon: "error",
+                    showConfirmButton: false,
                 });
             }
             if (response?.response?.status == 422) {

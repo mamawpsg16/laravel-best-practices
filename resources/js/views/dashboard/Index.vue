@@ -59,6 +59,7 @@ ChartJS.register(ArcElement, Tooltip, Legend)
         await axios.get('/api/tasks-status').then(response => {
           const { data }  = response.data;
           const formattedData = this.formatData(data);
+          console.log(formattedData,'formattedData');
           this.updateChartData(formattedData);
           this.isLoading = false;
         })

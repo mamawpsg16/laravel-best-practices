@@ -112,7 +112,6 @@ class TaskController extends Controller
                                 ->orderBy('status')
                                 ->get()
                                 ->toArray();
-        DD($taskStatusCounts);
         return response(['data' => $taskStatusCounts]);
     }
     

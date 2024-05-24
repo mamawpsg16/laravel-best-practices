@@ -1,12 +1,14 @@
 <?php
 namespace App\Services;
 
-use App\Events\Example;
 use App\Models\User;
+use App\Events\Example;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Auth\Events\Registered;
+use App\Mail\UserRegisteredMailExample;
 
 class AuthenticationService{
     public function registerUser($data){
@@ -19,7 +21,7 @@ class AuthenticationService{
             session()->regenerate();
             
             Auth::login($user);
-            
+            // Mail::to($user->email)->queue(new UserRegisteredMailExample($user));
             event(new Registered($user));
 
             return response(['status' => 'success']);

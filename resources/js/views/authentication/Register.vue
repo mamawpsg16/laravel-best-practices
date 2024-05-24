@@ -46,10 +46,10 @@
               </span>
           </div>
       </div>
+      <span v-if="isCredentialInvalid" class="text-danger mb-2">{{ isCredentialInvalid }}</span>
       <div class="d-flex justify-content-end align-items-center my-3">
         <button type="button" class="btn btn-md text-primary d-inline" @click="login"><span class="text-black"> Already have an account ? </span>Login</button> 
       </div>
-      <span v-if="isCredentialInvalid" class="text-danger mb-2">{{ isCredentialInvalid }}</span>
       <div id="btn" class="d-flex justify-content-end mt-2">
         <button type="submit" class="btn btn-primary form-control" :disabled="isProcessing">Register</button>
       </div>
@@ -107,9 +107,9 @@
           this.isProcessing = true;
           const response = await this.authStore.register(this.name, this.email, this.password, this.password_confirmation );
           if(response.status == 200){
-            
             localStorage.setItem('authenticated', true);
             this.isProcessing = false;
+            this.isCredentialInvalid = null;
             Swal.fire({
                       title: "Registered Succesfully",
                       icon: "success",
@@ -124,7 +124,8 @@
             }, 1000);
           }
         } catch (error) {
-            this.isCredentialInvalid = error.response.data.error
+          this.isCredentialInvalid = error.response.data.message
+          this.isProcessing = false;
         }
       }
     }

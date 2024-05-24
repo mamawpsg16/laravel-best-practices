@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import routes from './routes.js';
 import { useAuthStore } from '@js/stores/authStore.js';
-
+import NProgress from 'nprogress/nprogress.js';
 const router = createRouter({
   history: createWebHistory(),
   routes,
@@ -14,10 +14,11 @@ const router = createRouter({
   }
 });
 
+NProgress.configure({ easing: 'ease', speed: 500,  showSpinner: false });
 
 router.beforeEach(async (to, from, next) => {
+  NProgress.start();
   const authStore = useAuthStore();
-  console.log(authStore,'authStore', to,'to');
   // Fetch the user data if route requires authentication
   if (to.meta.requiresAuth) {
     await authStore.getUser();
@@ -47,6 +48,8 @@ router.beforeEach(async (to, from, next) => {
     next();
   }
 });
-
+router.afterEach((to, from) => {
+  NProgress.done();
+});
 
 export default router;

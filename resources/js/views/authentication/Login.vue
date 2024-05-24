@@ -126,6 +126,7 @@
         try {
           if(this.v$.email.$errors.length > 0  && this.v$.password.$errors.length > 0 ) return;
           this.isLoggingIn = true;
+          this.isCredentialInvalid = null;
           const response = await this.authStore.login(this.email, this.password, this.remembered);
           if(response.status == 200){
             localStorage.setItem('authenticated', true);

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Cookie;
 use App\Services\AuthenticationService;
@@ -25,6 +26,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Requests\Authentication\ResetPasswordRequest;
 use App\Http\Requests\Authentication\ChangePasswordRequest;
 use App\Http\Requests\Authentication\ResetPasswordConfirmationRequest;
+use App\Mail\ResetPasswordSuccess;
 
 class AuthenticationController extends Controller
 {
@@ -128,11 +130,24 @@ class AuthenticationController extends Controller
 
     public function resetPasswordConfirmation(ResetPasswordConfirmationRequest $request){
         $data = $request->validated();
-        $user = User::where('email', $data['email'])->first();
-        $user->update([
-            'password' => Hash::make($data['password'])
-        ]);
+        $response = [ 'message' => 'Password succesfully reset, kindly login your new credentials.', 'isReset' => true];
+        $status = Password::reset(
+            $data,
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->setRememberToken(Str::random(60));
+     
+                $user->save();
 
-        return response(['message' => 'Password succesfully reset, kindly login your new credentials.']);
+                Mail::to($user)->queue(new ResetPasswordSuccess());
+            }
+        );
+
+        if($status == Password::INVALID_TOKEN){
+            $response = [ 'message' => 'Reset Password Token Invalid, request a new reset link.', 'isReset' => false];
+        }
+
+        return response($response);
     }
 }
