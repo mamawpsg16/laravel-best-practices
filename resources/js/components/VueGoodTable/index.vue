@@ -1,0 +1,78 @@
+<template>
+     <vue-good-table 
+      :columns="columns"
+      :rows="rows"
+      :select-options="selectOptions"
+      :search-options="searchOptions"
+      @selected-rows-change="onSelectedRowsChange"
+      @row-click="onRowClicked"
+      :pagination-options="getPaginationOptions"
+      :styleClass="classes"
+      >
+        <template #table-row="{ row, column, index, formattedRow }">
+            <slot name="content" :row="row" :column="column" :index="index" :formattedRow="formattedRow"></slot>
+        </template>
+    </vue-good-table>
+</template>
+
+<script>
+import { VueGoodTable } from 'vue-good-table-next';
+    export default {
+        emits:['selected-rows-change', 'row-click'],
+        props:{
+            rows:{
+                type:[Array],
+                default:[]
+            },
+            columns:{
+                type:[Array],
+                default:[]
+            },
+            selectOptions:{
+                type:[Object],
+                default:{}
+            },
+            searchOptions:{
+                type:[Object],
+                default:{}
+            },
+            paginationOptions:{
+                type:[Object],
+                default:{
+                    enabled: true,
+                }
+            },
+            classes:{
+                type:[String],
+                default:'vgt-table bordered striped'
+            }
+        },
+        components: {
+            VueGoodTable
+        },
+        computed:{
+            getPaginationOptions(){
+                return {enabled: true, ...this.paginationOptions}
+            }
+        },
+        methods:{
+            onSelectedRowsChange(rows){
+                this.$emit('selected-rows-change',rows)
+            },
+            onRowClicked(row) {
+                this.$emit('row-click', row)
+                // params.row - row object 
+                // params.pageIndex - index of this row on the current page.
+                // params.selected - if selection is enabled this argument 
+                // indicates selected or not
+                // params.event - click event
+            }
+        }
+    }
+</script>
+
+<style lang="scss" scoped>
+.vgt-left-align{
+    text-align:unset !important;
+}
+</style>
