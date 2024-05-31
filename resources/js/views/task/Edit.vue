@@ -13,7 +13,7 @@
                 </div>
                 <div id="task_name" class="mb-2">
                     <label for="">Name <code>*</code></label>
-                    <Input type="text" id="name" class="input" placeholder="Enter task" v-model="task.name" :class="{'border border-danger': checkInputValidity('task', 'name', ['required'])}"  />
+                    <Input type="text" id="task-name" class="input" placeholder="Enter task" v-model="task.name" :class="{'border border-danger': checkInputValidity('task', 'name', ['required'])}"  />
                     <div class="text-danger">
                         <span v-if="v$.task.name.required.$invalid">
                             Task Name field is required.
@@ -22,7 +22,7 @@
                 </div>
                 <div id="task_description" class="mb-2">
                     <label for="">Description</label>
-                    <Input type="text" id="description" class="input" placeholder="Enter description" v-model="task.description" />
+                    <Input type="text" id="edit-description" class="input" placeholder="Enter description" v-model="task.description" />
                 </div>
 
                 <div class="d-flex justify-content-end">
@@ -41,8 +41,9 @@ import axios from 'axios';
 import { useVuelidate } from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import { checkValidity } from '@js/helpers/Vuelidate.js';
-import Swal from 'sweetalert2/dist/sweetalert2.js'
 import Multiselect from 'vue-multiselect'
+import apiClient from '@js/helpers/apiClient.js';
+import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
     export default {
         name:'Task Edit',
         props:{
@@ -89,27 +90,19 @@ import Multiselect from 'vue-multiselect'
             },
 
             async update(){
-                if(!await this.v$.$validate()) return;
-                this.isUpdating = true;
-                axios.put(`/api/tasks/${this.task.id}`,{...this.task}).then((response)=>{
+                try {
+                    if(!await this.v$.$validate()) return;
+                    this.isUpdating = true;
+                    const response = await apiClient.put(`/api/tasks/${this.task.id}`,{...this.task})
                     if(response.status == 200){
                         const { data } = response.data;
-                        Swal.fire({
-                            title: "Task Updated!",
-                            text: "Updated Succesfully",
-                            icon: "success",
-                            timer:2000,
-                            showConfirmButton: false,
-                            toast:true,
-                            position: "bottom-end",
-                            timerProgressBar: true,
-                        });
+                        sweetAlertNotification("Task Updated", "Updated Successfully", "success");
                         this.isUpdating = false;
                         this.$emit('updateTask', data)
                     }
-                }).catch((error) =>{
-
-                })
+                } catch (error) {
+                    
+                }
             },
         },
         watch: {

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import apiClient from '@js/helpers/apiClient.js';
 // Declare your store
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -24,14 +25,14 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
     async resetPassword(email){
-      await axios.get("sanctum/csrf-cookie");
+      await apiClient.get("sanctum/csrf-cookie");
       return await axios.post('/forgot-password', {
         email: email,
       });
     },
     async resetPasswordConfirmation(email, password, passwordConfirmation, token){
-        await axios.get("sanctum/csrf-cookie");
-        return await axios.post('/reset-password/confirmation', {
+        await apiClient.get("sanctum/csrf-cookie");
+        return await apiClient.post('/reset-password/confirmation', {
           email: email,
           password: password,
           password_confirmation : passwordConfirmation,
@@ -40,8 +41,8 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async register(name, email, password, passwordConfirmation){
-        await axios.get("sanctum/csrf-cookie");
-        return await axios.post('/register', {
+        await apiClient.get("sanctum/csrf-cookie");
+        return await apiClient.post('/register', {
           name: name,
           email: email,
           password: password,
@@ -50,9 +51,9 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async login(email, password, remembered){
-        await axios.get("sanctum/csrf-cookie");
+        await apiClient.get("sanctum/csrf-cookie");
 
-        return await axios.post('/login', {
+        return await apiClient.post('/login', {
           email: email,
           password: password,
           remembered:remembered
@@ -62,7 +63,7 @@ export const useAuthStore = defineStore('auth', {
 
     async logout(){
       try {
-          await axios.post('/api/logout').then((response =>{
+          await apiClient.post('/api/logout').then((response =>{
             if(response.status == 200) {
               localStorage.removeItem('authenticated');
               this.setAuthenticated(false);
@@ -77,7 +78,7 @@ export const useAuthStore = defineStore('auth', {
 
     async changePassword(password, new_password, new_password_confirmation){
       try {
-          const response = await axios.post('api/user/change-password', {
+          const response = await apiClient.post('api/user/change-password', {
             password: password,
             new_password: new_password,
             new_password_confirmation:new_password_confirmation
@@ -89,7 +90,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async getUser() {
-        await axios.get('/api/user').then(response => {
+        await apiClient.get('/api/user').then(response => {
           if(response?.data && response?.data?.user ){
             localStorage.setItem('authenticated',true)
             this.setAuthenticated(true);

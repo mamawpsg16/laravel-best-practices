@@ -21,7 +21,7 @@ window.axios.interceptors.response.use(
   function (error) {
   switch (error.response.status) {
       case 401: // Not logged in
-        localStorage.removeItem('authenticated');
+        useAuthStore().setAuthenticated(false);
         break;
         case 403: // Forbidden
         window.location.href = "/forbidden";

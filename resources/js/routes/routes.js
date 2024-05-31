@@ -11,6 +11,8 @@ const EmailVerification = () => import('@js/views/authentication/EmailVerificati
 const ResetPassword = () => import('@js/views/authentication/ResetPassword.vue')
 const ResetPasswordConfirmation = () => import('@js/views/authentication/ResetPasswordConfirmation.vue')
 
+const UserIndex = () => import('@js/views/admin/user/Index.vue')
+
 const routes = [
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound, meta: { requiresAuth: true } },
     // OR
@@ -29,6 +31,21 @@ const routes = [
     { path: '/users/:username', component: User,  name:'user', meta: { requiresAuth: true } },
     { path: '/tasks', component: Tasks,  name:'tasks', meta: { requiresAuth: true } },
     { path: '/email-verification', component: EmailVerification,  name:'email-verification', meta: { requiresAuth: true } },
+    
+    {
+      path: '/admin',
+      children: [
+        {
+          // UserProfile will be rendered inside User's <router-view>
+          // when /user/:id/profile is matched
+          path: 'users',
+          component: UserIndex,
+          name:'admin-users',
+          meta: { requiresAuth: true }
+        },
+      ],
+    },
+
   ];
 
 export default routes;

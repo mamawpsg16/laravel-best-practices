@@ -6,7 +6,7 @@
                 <div class="mb-2">
                     <label for="password" class="form-label">Current Password <code>*</code></label>
                     <div class="input-group">
-                        <Input :type="passwordInputType" id="current-password" class="form-control" autocomplete="current-password" :class="{ 'border border-danger': checkInputValidity(null, 'password', ['required']) }" placeholder="Enter password" v-model="password" required />
+                        <Input :type="passwordInputType" id="current-password" class="form-control" tabindex="1" autocomplete="current-password" :class="{ 'border border-danger': checkInputValidity(null, 'password', ['required']) }" placeholder="Enter password" v-model="password" required />
                         <span class="input-group-text" id="basic-addon1">
                             <button type="button" class="btn btn-sm" @click="togglePasswordVisibility()" ><i class="bi bi-eye-slash" id="passwordVisibilityToggle"></i></button>
                         </span>
@@ -23,7 +23,7 @@
                 <div class="mb-2">
                     <label for="password" class="form-label">New Password <code>*</code></label>
                     <div class="input-group">
-                        <Input :type="newPasswordInputType" id="new-password" class="form-control" autocomplete="new-password" :class="{ 'border border-danger': checkInputValidity(null, 'new_password', ['required', 'notSameAsPassword', 'minLength']) }" placeholder="Enter new password" v-model="new_password" required />
+                        <Input :type="newPasswordInputType" id="new-password" tabindex="2" class="form-control" autocomplete="new-password" :class="{ 'border border-danger': checkInputValidity(null, 'new_password', ['required', 'notSameAsPassword', 'minLength']) }" placeholder="Enter new password" v-model="new_password" required />
                         <span class="input-group-text" id="basic-addon1">
                             <button type="button" class="btn btn-sm" @click="toggleNewPasswordVisibility()" ><i class="bi bi-eye-slash" id="newPasswordVisibilityToggle"></i></button>
                         </span>
@@ -46,7 +46,7 @@
                 <div class="mb-2">
                     <label for="password" class="form-label">Confirm New Password <code>*</code></label>
                     <div class="input-group">
-                        <Input :type="newPasswordConfirmationInputType" id="new-password-confirmation" class="form-control" autocomplete="new-password-confirmation" :class="{ 'border border-danger': checkInputValidity(null, 'new_password_confirmation', ['required', 'sameAsPassword']) }" placeholder="Enter new password confirmation" v-model="new_password_confirmation" required />
+                        <Input :type="newPasswordConfirmationInputType" tabindex="3" id="new-password-confirmation" class="form-control" autocomplete="new-password-confirmation" :class="{ 'border border-danger': checkInputValidity(null, 'new_password_confirmation', ['required', 'sameAsPassword']) }" placeholder="Enter new password confirmation" v-model="new_password_confirmation" required />
                         <span class="input-group-text" id="basic-addon1">
                             <button type="button" class="btn btn-sm" @click="toggleNewPasswordConfirmationVisibility()" ><i class="bi bi-eye-slash" id="newPasswordConfirmationVisibilityToggle"></i></button>
                         </span>
@@ -65,7 +65,7 @@
                 </div>
                 <span v-if="isCredentialInvalid" class="text-danger mb-1">{{ isCredentialInvalid }}</span>
                 <div id="btn" class="d-flex justify-content-end mt-2">
-                    <button type="submit" class="btn btn-primary form-control" :disabled="isUpdating">{{  isUpdating ? 'Updating' : 'Update' }}</button>
+                    <button type="submit" class="btn btn-primary form-control" tabindex="4" :disabled="isUpdating">{{  isUpdating ? 'Updating' : 'Update' }}</button>
                 </div>
             </form>
         </template>
@@ -81,6 +81,7 @@ import axios from 'axios';
 import { checkValidity  } from '@js/helpers/Vuelidate.js';
 import { useAuthStore } from '@js/stores/authStore.js';
 import Swal from 'sweetalert2/dist/sweetalert2.js'
+import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
 
     const notSameAsPassword = (currentPassword) => {
         return helpers.withParams( { type: 'notSameAsPassword', value: currentPassword },
@@ -189,15 +190,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js'
                     const response = await this.authStore.changePassword(this.password, this.new_password, this.new_password_confirmation);
                     if(response?.status == 200){
                         this.resetForm()
-                        Swal.fire({
-                            title: response.data.message,
-                            icon: "success",
-                            timer:2000,
-                            showConfirmButton: false,
-                            toast:true,
-                            position: "bottom-end",
-                            timerProgressBar: true,
-                        });
+                        sweetAlertNotification(response.data.message,'','success')
                     }
                     if (response.response.status == 422) {
                         this.errors =  response.response.data.errors;

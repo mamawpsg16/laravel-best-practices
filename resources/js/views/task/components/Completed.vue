@@ -44,7 +44,8 @@
 
 <script>
 import Modal from '@js/components/Modal.vue';
-import axios from 'axios';
+import apiClient from '@js/helpers/apiClient.js';
+import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
     export default {
         name:'Completed Tasks',
         props:{
@@ -63,15 +64,20 @@ import axios from 'axios';
             }
         },
         methods:{
-            restore(taskId){
-                axios.put('/api/tasks/restore/'+taskId).then((response) => {
-                    const index = this.data.findIndex(item => item.id ==  taskId);
-                    if (index !== -1) {
-                        const task = this.data.splice(index, 1);
-                        this.$emit('restoredTask',task, true)
+            async restore(taskId){
+                try {
+                    const response = await apiClient.put(`/api/tasks/restore/${taskId}`);
+                    if(response.status == 200){
+                        const index = this.data.findIndex(item => item.id ==  taskId);
+                        if (index !== -1) {
+                            const task = this.data.splice(index, 1);
+                            this.$emit('restoredTask',task, true)
+                            sweetAlertNotification("Task Restored", "Revert to Ongoing Status", "success");
+                        }
                     }
-                }).catch((error) => {
-                });
+                } catch (error) {
+                    
+                }
             }
           
         },

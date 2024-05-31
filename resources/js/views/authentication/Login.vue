@@ -56,9 +56,8 @@
   import { useVuelidate } from '@vuelidate/core'
   import { required, email } from '@vuelidate/validators';
   import { checkValidity  } from '@js/helpers/Vuelidate.js';
-  import Swal from 'sweetalert2/dist/sweetalert2.js'
   import ResetPasswordLink from '@js/views/authentication/ResetPasswordLink.vue';
-
+  import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
   export default {
     setup () {
       return { v$: useVuelidate({ $autoDirty : true, $lazy: true}) }
@@ -132,15 +131,7 @@
             localStorage.setItem('authenticated', true);
             this.isCredentialInvalid = null;
             this.isLoggingIn = false;
-            Swal.fire({
-                      title: "Logged In Succesfully!",
-                      icon: "success",
-                      timer:2000,
-                      showConfirmButton: false,
-                      toast:true,
-                      position: "bottom-end",
-                      timerProgressBar: true,
-                  });
+            sweetAlertNotification("Logged In Succesfully", "", "success")
             setTimeout(() => {
               window.location.href = '/';
             }, 1000);
@@ -150,7 +141,6 @@
               this.isLoggingIn = false;
           }
         } catch (error) {
-          // this.errors =  response.response.data.errors;
           this.isCredentialInvalid = error?.response?.data.error
           this.isLoggingIn = false;
         }

@@ -19,6 +19,9 @@
                             Task Name field is required.
                         </span>
                     </div>
+                    <div v-if="errors?.name" class="text-danger">
+                        {{ errors?.name[0] }}
+                    </div>
                 </div>
                 <div id="task_description" class="mb-2">
                     <label for="">Description</label>
@@ -41,13 +44,13 @@
 import Modal from '@js/components/Modal.vue';
 import Input from '@js/components/Form/Input.vue'
 import flatPickr from 'vue-flatpickr-component';
-import axios from 'axios';
 import { useVuelidate } from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import { checkValidity } from '@js/helpers/Vuelidate.js';
-import Swal from 'sweetalert2/dist/sweetalert2.js'
+// import Swal from 'sweetalert2/dist/sweetalert2.js'
 import Multiselect from 'vue-multiselect'
-
+import apiClient from '@js/helpers/apiClient.js';
+import { sweetAlertNotification } from  '@js/helpers/sweetAlert.js';
     export default {
         name:'Task Create',
         setup () {
@@ -71,7 +74,10 @@ import Multiselect from 'vue-multiselect'
                 options: [
                     { label: 'Pending', value: 0 },
                     { label: 'Ongoing', value: 1 },
-                ]
+                ],
+                errors:[{
+                    name:false
+                }]
             }
         },
         components: {
@@ -106,30 +112,31 @@ import Multiselect from 'vue-multiselect'
                 this.v$.$reset()
             },
             async addTask(){
-                if(!await this.v$.$validate()) return;
-                this.isSaving = true;
-                let tasks = {...this.task};
-                tasks.status = tasks.status.value;
-                axios.post('/api/tasks',{...tasks}).then((response)=>{
-                    if(response.status == 200){
-                        const { data } = response.data;
-                        this.resetForm()
-                        Swal.fire({
-                            title: "Task Added!",
-                            text: "Added Succesfully",
-                            icon: "success",
-                            timer:2000,
-                            showConfirmButton: false,
-                            toast:true,
-                            position: "bottom-end",
-                            timerProgressBar: true,
-                        });
-                        this.isSaving = false;
-                        this.$emit('updateList', data)
-                    }
-                }).catch((error) =>{
+                if (!(await this.v$.$validate())) return;
 
-                })
+                this.isSaving = true;
+
+                try {
+                    const response = await this.postTask(this.task);
+                    if(response.status == 200){
+                        this.resetForm();
+                        sweetAlertNotification("Task Added", "Added Successfully", "success");
+                        this.$emit('updateList', response.data.data);
+                    }
+                } catch (error) {
+                    this.errors = error.errors;
+                } finally {
+                    this.isSaving = false;
+                }
+            },
+
+            async postTask(task){
+                const formattedTask = {
+                    ...task,
+                    status: task.status.value,
+                };
+                const response = await apiClient.post('/api/tasks', formattedTask);
+                return response;
             },
         },
     }

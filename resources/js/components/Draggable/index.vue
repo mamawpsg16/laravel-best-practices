@@ -25,6 +25,7 @@
 import axios from "axios";
 import draggable from "vuedraggable";
 import Swal from 'sweetalert2/dist/sweetalert2.js'
+import { sweetAlertConfirmation, sweetAlertNotification } from "@js/helpers/sweetAlert.js";
     export default {
         props:{
             list:{
@@ -51,73 +52,36 @@ import Swal from 'sweetalert2/dist/sweetalert2.js'
         methods:{
           async deleteTask(id){
             if(this.Itemkey == 'ongoing'){
-              const result = await Swal.fire({
-                title: "Are you sure?",
-                text: "You won't be able to revert this!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, delete it!",
+              const result = await sweetAlertConfirmation({
                 allowOutsideClick:false,
                 allowEscapeKey:false,
                 allowEnterKey:false
               })
+             
               if (result.isConfirmed) {
                 this.delete(id)
-                Swal.fire({   
-                  title: "Task Successfully Deleted",
-                  icon: "success",
-                  showConfirmButton: false,
-                  timer:2000,
-                  toast:true,
-                  position: "bottom-end",
-                  timerProgressBar: true,
-                });
+                sweetAlertNotification("Task Successfully Deleted", '', 'success', { timer:2000, toast:true, position: "bottom-end", timerProgressBar: true,})
               } else if (result.isDenied) {
-                Swal.fire("Changes are not saved", "", "info");
+                sweetAlertNotification("Changes are not saved", '', 'info')
               }
             }else{
               this.delete(id);    
-              Swal.fire({   
-                title: "Task Successfully Deleted",
-                icon: "success",
-                showConfirmButton: false,
-                timer:2000,
-                toast:true,
-                position: "bottom-end",
-                timerProgressBar: true,
-              });       
+              sweetAlertNotification("Task Successfully Deleted", '', 'success', { timer:2000, toast:true, position: "bottom-end", timerProgressBar: true,})
             }
-           
+            
           },
           async markAsCompleted(id){
-              const result = await Swal.fire({
-                title: "Are you sure?",
-                text: "Mark this task as completed?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes",
-                allowOutsideClick:false,
-                allowEscapeKey:false,
-                allowEnterKey:false
-              })
-              if (result.isConfirmed) {
-                this.updateStatus(id)
-                Swal.fire({   
-                  title: "Task Successfully Completed",
-                  icon: "success",
-                  showConfirmButton: false,
-                  timer:2000,
-                  toast:true,
-                  position: "bottom-end",
-                  timerProgressBar: true,
-                });
-              } else if (result.isDenied) {
-                Swal.fire("Changes are not saved", "", "info");
-              }
+            const result = await sweetAlertConfirmation({
+              allowOutsideClick:false,
+              allowEscapeKey:false,
+              allowEnterKey:false
+            },"Mark this task as completed?");
+            if (result.isConfirmed) {
+              this.updateStatus(id)
+              sweetAlertNotification("Task Successfully Completed", '', 'success', { timer:2000, toast:true, position: "bottom-end", timerProgressBar: true,})
+            } else if (result.isDenied) {
+              sweetAlertNotification("Changes are not saved", '', 'info')
+            }
           },
 
           async delete(id){

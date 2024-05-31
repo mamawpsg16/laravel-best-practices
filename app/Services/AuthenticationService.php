@@ -17,11 +17,13 @@ class AuthenticationService{
             $data['password'] = bcrypt($data['password']);
     
             $user = User::create($data);
-    
+
             session()->regenerate();
             
             Auth::login($user);
+            
             // Mail::to($user->email)->queue(new UserRegisteredMailExample($user));
+
             event(new Registered($user));
 
             return response(['status' => 'success']);
@@ -30,10 +32,13 @@ class AuthenticationService{
     public function loginUser($data){
         return DB::transaction(function () use($data) {
             if (Auth::attempt(['email' => $data['email'], 'password' => $data['password']], $data['remembered'])){
+
                 session()->regenerate();
 
                 $user = Auth::user();
-                $event = event(new Example());
+
+                event(new Example());
+
                 return response()->json(['user' => $user, 'isLoggedIn' => true]);
             }
             return response()->json(['error' => 'Invalid credentials', 'isLoggedIn' => false],422);

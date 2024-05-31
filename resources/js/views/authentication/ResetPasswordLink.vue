@@ -27,12 +27,11 @@
 </template>
   
   <script>
-  import axios from 'axios';
   import { useAuthStore } from '@js/stores/authStore';
   import { useVuelidate } from '@vuelidate/core'
   import { required, email } from '@vuelidate/validators';
   import { checkValidity  } from '@js/helpers/Vuelidate.js';
-  import Swal from 'sweetalert2/dist/sweetalert2.js'
+  import { sweetAlertNotification } from '@js/helpers/sweetAlert.js'
   import Input from '@js/components/Form/Input.vue'
   import Modal from '@js/components/Modal.vue';
 
@@ -78,16 +77,7 @@
           const response = await this.authStore.resetPassword(this.email);
           if(response.status == 200){
             this.isResetLinkSent = false;
-            Swal.fire({
-              title: response.data.message,
-              icon: "success",
-              timer:2000,
-              showConfirmButton: false,
-              toast:true,
-              position: "bottom-end",
-              timerProgressBar: true,
-             });
-
+             sweetAlertNotification(response.data.message,"", "success")
              this.resetForm();
              this.hasError = null;
           }

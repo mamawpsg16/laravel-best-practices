@@ -47,7 +47,7 @@
   import { required, email, sameAs, minLength } from '@vuelidate/validators'
   import { checkValidity  } from '@js/helpers/Vuelidate.js';
   import Swal from 'sweetalert2/dist/sweetalert2.js'
-
+  import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
   export default {
     setup () {
       return { v$: useVuelidate({ $autoDirty : true, $lazy: true}) }
@@ -102,16 +102,7 @@
                 // localStorage.setItem('authenticated', true);
                 this.isProcessing = false;
                 this.resetForm();
-                Swal.fire({
-                    title: response.data.message,
-                    icon: "success",
-                    timer:2000,
-                    showConfirmButton: false,
-                    toast:true,
-                    position: "bottom-end",
-                    timerProgressBar: true,
-                });
-
+                sweetAlertNotification(response.data.message,"", "success")
                 this.$router.push({name:'login'});
             }else{
                 // localStorage.setItem('authenticated', true);

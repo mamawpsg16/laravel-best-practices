@@ -18,7 +18,6 @@ class TaskController extends Controller
     {
         $data = Task::orderBy('status')->orderBy('order')->get();
         // $details = DB::select('CALL spGetTasks()');
-        // dd($details);
        return response(['data' => $data]);
     }
 

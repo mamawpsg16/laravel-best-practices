@@ -3,7 +3,7 @@
       <h4 class="text-center">Register</h4>
       <div class="mb-3">
           <label for="name" class="form-label">Name</label>
-          <Input type="text" id="name" autocomplete="name" class="form-control" placeholder="Enter name" v-model="name" :class="{ 'border border-danger': checkInputValidity(null, 'name', ['required']) }" required/>
+          <Input type="text" id="register-name" autocomplete="name" class="form-control" placeholder="Enter name" v-model="name" :class="{ 'border border-danger': checkInputValidity(null, 'name', ['required']) }" required/>
           <div class="text-danger">
               <span v-if="v$.name.required.$invalid">
                   Name is required.
@@ -63,7 +63,7 @@
   import { useVuelidate } from '@vuelidate/core'
   import { required, email, sameAs, minLength } from '@vuelidate/validators'
   import { checkValidity  } from '@js/helpers/Vuelidate.js';
-  import Swal from 'sweetalert2/dist/sweetalert2.js'
+  import { sweetAlertNotification } from "@js/helpers/sweetAlert.js";
 
   export default {
     setup () {
@@ -110,18 +110,10 @@
             localStorage.setItem('authenticated', true);
             this.isProcessing = false;
             this.isCredentialInvalid = null;
-            Swal.fire({
-                      title: "Registered Succesfully",
-                      icon: "success",
-                      timer:2000,
-                      showConfirmButton: false,
-                      toast:true,
-                      position: "bottom-end",
-                      timerProgressBar: true,
-                  });
+            sweetAlertNotification("Registered Succesfully, Kindly Verify Your Email","", "success")
             setTimeout(() => {
               window.location.href = '/';
-            }, 1000);
+            }, 1500);
           }
         } catch (error) {
           this.isCredentialInvalid = error.response.data.message

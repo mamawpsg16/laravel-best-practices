@@ -6,9 +6,10 @@
   </template>
   
   <script>
-  import axios from 'axios';
   import { useAuthStore } from '@js/stores/authStore';
-  import Swal from 'sweetalert2/dist/sweetalert2.js'
+  import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
+  import apiClient from '@js/helpers/apiClient.js';
+
   export default {
     data() {
       return {
@@ -18,22 +19,16 @@
     created() {
     },
     methods: {
-      resendVerificationLink(){
-        axios.post('/api/email/resend-verification').then((response) =>{
-          const { message } = response.data;
-          Swal.fire({
-                    title: message,
-                    text: "Kindly check your mail.",
-                    icon: "success",
-                    timer:2000,
-                    showConfirmButton: false,
-                    toast:true,
-                    position: "bottom-end",
-                    timerProgressBar: true,
-                });
-        }).catch((error) =>{
-        });
-
+      async resendVerificationLink(){
+        try {
+          const response = await apiClient.post('/api/email/resend-verification')
+          if(response.status == 200){
+            const { message } = response.data;
+            sweetAlertNotification(message,'Kindly check your mail','success')
+          }
+        } catch (error) {
+          
+        }
       }
     },
   };

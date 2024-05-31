@@ -38,10 +38,10 @@
 <script>
 import Create from './Create.vue';
 import Edit from './Edit.vue';
-import Swal from 'sweetalert2/dist/sweetalert2.js'
+import { sweetAlertNotification, SwalDefault } from '@js/helpers/sweetAlert.js'
 import CompletedTasks from './Components/Completed.vue';
 import Draggable from '@js/components/Draggable/Index.vue';
-import axios from 'axios';
+import apiClient from '@js/helpers/apiClient.js';
 export default {
   name: "Task Index",
   components: {
@@ -77,6 +77,7 @@ export default {
       return this.orderChanged;
     }
   },
+
   methods: {
     formatData(data){
   
@@ -87,32 +88,30 @@ export default {
     },
 
     async updateStatus(status, event) {
-      const index = event.newIndex;
-      const tasks = this[this.statuses[status].toLowerCase()];
-      const id = tasks[index].id;
-      await axios.post('/api/tasks/update-status',{id:id, status:status}).then((res) =>{
-      }).catch((err) =>{
-      });
+      try {
+        const index = event.newIndex;
+        const tasks = this[this.statuses[status].toLowerCase()];
+        const id = tasks[index].id;
+        const response = await apiClient.post('/api/tasks', {id:id, status:status});
+      } catch (error) {
+        console.log('Update Status error: ' + error);
+      }
     },
 
     async updateTasksOrder() {
+     try {
       const ongoing = this.formatTasksOrder(this.ongoing);
       const pending = this.formatTasksOrder(this.pending);
       const data = [...ongoing, ...pending];
-      await axios.post('/api/tasks/update-order',{tasks:data}).then((res) =>{
-        Swal.fire({
-                title: "Order Updated!",
-                text: "Tasks Orders Updated Succesfully",
-                icon: "success",
-                timer:2000,
-                showConfirmButton: false,
-                toast:true,
-                position: "bottom-end",
-                timerProgressBar: true,
-            });
+      
+      const response = await apiClient.post('/api/tasks/update-order',{tasks:data})
+      if(response.status == 200){
+        sweetAlertNotification("Order Updated", "Tasks Orders Updated Succesfully", "success", true, { width:380 });
         this.orderChanged = false;
-      }).catch((err) =>{
-      });
+      }
+     } catch (error) {
+      console.log('updateTasksOrder error: ' + error);
+     }
     },
 
     formatTasksOrder(tasks){
@@ -205,24 +204,32 @@ export default {
       return formattedDate;
     },
 
-    async getData(){
-      await axios.get('/api/tasks').then((response)=>{
-          const { data } = response.data;
-          const { '0': pending, '1': ongoing, '2': completed } = this.gropedData(data);
-          this.pending = pending;
-          this.ongoing = ongoing;
-          const completedFormattedData = completed?.map(task => ({
-            ...task,
-            due_date_text:this.formatDate(task.due_date),
-            start_date_text:this.formatDate(task.start_timestamp),
-            completion_date_text:this.formatDate(task.end_timestamp),
-          }));
-          this.completed = completedFormattedData;
-       }).catch((error) =>{
-
-      })
+    formatTaskData(task){
+      return {
+        ...task,
+        due_date_text: this.formatDate(task.due_date),
+        start_date_text: this.formatDate(task.start_timestamp),
+        completion_date_text: this.formatDate(task.end_timestamp),
+      }
     },
-  }
+
+    formatCompletedTasks(completedTasks){
+      return completedTasks?.map(task => this.formatTaskData(task));
+    },
+
+    async getData() {
+      try {
+        const response = await apiClient.get('/api/tasks');
+        const { data } = response.data;
+        const { '0': pending, '1': ongoing, '2': completed } = this.gropedData(data);
+        this.pending = pending;
+        this.ongoing = ongoing;
+        this.completed = this.formatCompletedTasks(completed);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  },
 };
 </script>
 <style scoped>

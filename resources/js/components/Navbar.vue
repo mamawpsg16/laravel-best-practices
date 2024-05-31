@@ -25,6 +25,9 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li v-if="authStore.isUserAuthenticated && authStore.isUserVerified" class="nav-item">
+                                <router-link :to="{ name: 'admin-users' }" class="dropdown-item">Users</router-link>
+                            </li>
+                            <li v-if="authStore.isUserAuthenticated && authStore.isUserVerified" class="nav-item">
                                 <router-link :to="{ name: 'tasks' }" class="dropdown-item">Tasks</router-link>
                             </li>
                             <li><a class="dropdown-item" href="#" @click="changePassword" v-if="!authStore.isSocialAuthenticated">Change Password</a></li>
