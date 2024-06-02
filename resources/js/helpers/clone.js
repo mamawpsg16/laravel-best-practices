@@ -2,7 +2,7 @@ export const deepClone = (data) => JSON.parse(JSON.stringify(data));
 
 export const nestedDeepClone = (data) => structuredClone(data);
 
-function customDeepClone(obj) {
+export const customDeepClone = function(obj) {
     // Handle null or undefined
     if (obj === null || obj === undefined) {
         return obj;
