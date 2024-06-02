@@ -113,5 +113,8 @@ class TaskController extends Controller
                                 ->toArray();
         return response(['data' => $taskStatusCounts]);
     }
+    public function updateTasks(Request $request){
+        dd('WTF');
+    }
     
 }

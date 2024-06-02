@@ -58,6 +58,7 @@
   import { checkValidity  } from '@js/helpers/Vuelidate.js';
   import ResetPasswordLink from '@js/views/authentication/ResetPasswordLink.vue';
   import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
+  import { deepClone, nestedDeepClone } from '@js/helpers/clone.js'
   export default {
     setup () {
       return { v$: useVuelidate({ $autoDirty : true, $lazy: true}) }
@@ -90,6 +91,19 @@
       ResetPasswordLink
     },
     created(){
+      const person = {
+        name: "John Doe",
+        age: 30,
+        occupation: {
+          jobs:['Web Dev', 'Data Analyst']
+        },
+      };
+      const personClone = nestedDeepClone(person);
+      console.log(personClone.occupation = 'Web Developer','personClone');
+      console.log(personClone,'person');
+      console.log(person,'person');
+      // console.log(null || 'SHEESH');
+      // console.log('SHEESH' && 1 && null && 'abc');
     },  
     methods: {
 

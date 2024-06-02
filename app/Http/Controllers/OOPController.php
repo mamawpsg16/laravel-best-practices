@@ -113,5 +113,5 @@ class Fish implements Animal{
 $dog = new Dog();
 // $fish = new Fish();
 // $cat = new Cat();
-$testController = new TestController($dog);
-$testController->index();
+// $testController = new TestController($dog);
+// $testController->index();

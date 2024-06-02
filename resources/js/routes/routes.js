@@ -8,7 +8,6 @@ const About = () => import('@js/views/example/About.vue')
 const User = () => import('@js/views/user/Index.vue')
 const Tasks = () => import('@js/views/task/Index.vue')
 const EmailVerification = () => import('@js/views/authentication/EmailVerification.vue')
-const ResetPassword = () => import('@js/views/authentication/ResetPassword.vue')
 const ResetPasswordConfirmation = () => import('@js/views/authentication/ResetPasswordConfirmation.vue')
 
 const UserIndex = () => import('@js/views/admin/user/Index.vue')
@@ -21,7 +20,6 @@ const routes = [
     /** UNAUTHENTICATED ROUTES */
     { path: '/login', component: Login,  name:'login', meta: { requiresAuth: false } },
     { path: '/register', component: Register,  name:'register', meta: { requiresAuth: false } },
-    { path: '/reset-password', component: ResetPassword,  name:'reset-password', meta: { requiresAuth: false } },
     { path: '/reset-password/:token', component: ResetPasswordConfirmation,  name:'reset-password-confirmation', meta: { requiresAuth: false } },
 
     /** AUTHENTICATED ROUTES */

@@ -1,7 +1,7 @@
 <template>
   <Create @update-list="taskAdded"></Create>
   <Edit @update-task="taskUpdated" :data="data"></Edit>
-  <CompletedTasks :tasks="completed" @restored-task="taskAdded" ></CompletedTasks>
+  <CompletedTasks :tasks="completed" @restored-tasks="taskAdded" ></CompletedTasks>
   <div class="row mt-3">
     <div class="d-flex justify-content-end mt-2">
       <button type="button" class="btn btn-primary text-white me-2" @click="createTask">
@@ -92,7 +92,7 @@ export default {
         const index = event.newIndex;
         const tasks = this[this.statuses[status].toLowerCase()];
         const id = tasks[index].id;
-        const response = await apiClient.post('/api/tasks', {id:id, status:status});
+        const response = await apiClient.post('/api/tasks/update-status', {id:id, status:status});
       } catch (error) {
         console.log('Update Status error: ' + error);
       }
@@ -125,11 +125,13 @@ export default {
       return [];
     },
 
-    taskAdded(task, restore = false){
+    taskAdded(data, restore = false){
       if(!restore){
-        this[this.statuses[task.status].toLowerCase()].unshift(task);
+        this[this.statuses[data.status].toLowerCase()].unshift(data);
       }else{
-        this.ongoing.push(task[0]);
+        console.log(data,'data');
+        const mergeData = [...this.ongoing, ...data]
+        this.ongoing = mergeData;
       }
     },
 

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\Task\TaskController;
@@ -19,11 +20,16 @@ use App\Http\Controllers\Auth\AuthenticationController;
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
+
+    Route::post('/test-test', function (Request $request){
+        dd('TAENA');
+    });
     Route::get('/user',[AuthenticationController::class, 'user']);
     Route::post('/user/change-password',[AuthenticationController::class, 'changePassword']);
     Route::get('/posts',[PostController::class, 'index']);
     Route::post('/logout', [AuthenticationController::class,'logout'])->name('logout');
-
+    
+    Route::post('/update-restored-tasks',[TaskController::class, 'updateTasks']);
   
     Route::get('/tasks-status',[TaskController::class, 'getTaskStatusDetails']);
     Route::apiResource('/tasks',TaskController::class);
