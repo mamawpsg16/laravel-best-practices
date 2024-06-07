@@ -19,7 +19,9 @@ class ViewController extends Controller
         if(Auth::check() && ($pathInfo == '/register' || $pathInfo == '/login' || Str::startsWith($pathInfo, '/reset-password'))){
             return redirect('/');
         }
+
         $user = session('auth-user');
-        return view('app',['user' => json_encode($user)]);
+        $banned = session('banned');
+        return view('app',['user' => json_encode($user), 'banned' => json_encode($banned)]);
     }
 }

@@ -77,10 +77,8 @@ import Modal from '@js/components/Modal.vue';
 import Input from '@js/components/Form/Input.vue'
 import { useVuelidate } from '@vuelidate/core'
 import { required, email, sameAs, helpers, minLength  } from '@vuelidate/validators'
-import axios from 'axios';
 import { checkValidity  } from '@js/helpers/Vuelidate.js';
 import { useAuthStore } from '@js/stores/authStore.js';
-import Swal from 'sweetalert2/dist/sweetalert2.js'
 import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
 
     const notSameAsPassword = (currentPassword) => {
@@ -92,6 +90,10 @@ import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
     export default {
         setup () {
             return { v$: useVuelidate({ $autoDirty : true, $lazy: true}) }
+        },
+        components: {
+            Modal,
+            Input
         },
         data() {
             return {
@@ -201,10 +203,6 @@ import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
                  
                 }
             }
-        },
-        components: {
-            Modal,
-            Input
         },
     }
 </script>

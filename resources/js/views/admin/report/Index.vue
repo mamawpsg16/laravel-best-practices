@@ -15,7 +15,7 @@
         </template>
         <template #content="{ row, column, index, formattedRow }">
         <span v-if="column.field == 'action'" class="d-flex justify-content-center">
-            <button class="btn btn-sm" @click="banDetails(row, index)" :data='`ban-${index}`'><i :class="`bi ${!row.banned_at ? 'bi-ban' : 'bi-escape'}`" :title="`${!row.banned_at ? 'Ban user' : 'Unbanned user'}`"></i></button>
+          <button class="btn btn-sm"><i class="bi bi-eye action"></i></button>
         </span>
         <span v-else>
             {{row[column.field]}}
@@ -49,48 +49,24 @@ import { customDeepClone } from '@js/helpers/clone.js';
                         width: '130px',
                     },
                     {
-                        label: 'Name',
-                        field: 'name',
-                        width: '200px',
-                    },
-                    {
                         label: 'Email Address',
                         field: 'email',
-                    },
-                    {
-                        label: 'Email Verified At',
-                        field: 'email_verified_at',
-                        width: '230px',
-                    },
-                    {
-                        label: 'Provider',
-                        field: 'provider',
                         width: '200px',
                     },
                     {
-                        label: 'Provider ID',
-                        field: 'provider_id',
-                        width: '150px',
+                        label: 'Type',
+                        field: 'report_type',
+                        width: '200px',
                     },
                     {
-                        label: 'Banned At',
-                        field: 'banned_at',
-                        width: '230px',
+                        label: 'Subject',
+                        field: 'title',
+                        width: '200px',
                     },
                     {
-                        label: 'Banned End At',
-                        field: 'banned_date',
-                        width: '230px',
-                    },
-                    {
-                        label: 'Remaining Banned Days',
-                        field: 'banned_remaining_days',
-                        width: '230px',
-                    },
-                    {
-                        label: 'Banned Description',
-                        field: 'banned_description',
-                        width: '230px',
+                        label: 'Description',
+                        field: 'description',
+                        width: '200px',
                     },
                     {
                         label: 'Created At',
@@ -136,19 +112,16 @@ import { customDeepClone } from '@js/helpers/clone.js';
             formatData(data){
                 return {
                     ...data,
-                    provider: formatter.capitalizeFirstLetter(data.provider), 
+                    title: formatter.capitalizeFirstLetter(data.title), 
+                    report_type: formatter.capitalizeFirstLetter(data.report_type), 
                     created_at: formatter.formatReadableDateTime(data.created_at), 
-                    banned_at: formatter.formatReadableDateTime(data.banned_at), 
                     updated_at: formatter.formatReadableDateTime(data.updated_at), 
-                    email_verified_at: formatter.formatReadableDateTime(data.email_verified_at), 
-                    banned_date: formatter.formatReadableDateTime(data.banned_end_at), 
-                    banned_remaining_days: data.banned_days
                 }
             },  
 
             async getData(reset = false) {
                 try {
-                    const response = await apiClient.get('/api/admin/users');
+                    const response = await apiClient.get('/api/admin/reports');
                     if(response.status == 200){
                         if(reset){
                             this.filterReset = true;
@@ -169,74 +142,6 @@ import { customDeepClone } from '@js/helpers/clone.js';
                this.banConfirmation(row, index)
             },
 
-            async banUser(row, index){
-                await SwalDefault.fire({
-                    title: 'Banning System',
-                    html: `
-                        <input id="ban-days" type="number" class="swal2-input" placeholder="Enter ban duration">
-                        <input id="ban-description" type="text" class="swal2-input" placeholder="Enter ban description">
-                    `,
-                    showCancelButton: true,
-                    confirmButtonText: "Confirm",
-                    focusConfirm: false,
-                    preConfirm: async () => {
-                        const bannedDays = document.getElementById('ban-days').value;
-                        const bannedDescripton = document.getElementById('ban-description').value;
-                        if (!bannedDays.trim()) {
-                            sweetAlertNotification('Please enter a ban duration', '', 'info', false);
-                        }
-                        return {bannedDays, bannedDescripton};
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed && result.value.bannedDays.trim()) {
-                        const dateToday = formatter.formatNumericDate(new Date());
-                        const { banEndDateToSql } = this.calculateBanDetails(dateToday, result.value.bannedDays);
-                        result.value.bannedEndDate =formatter.formatToSql(banEndDateToSql)
-
-                        this.banConfirmation(row, index, result.value)
-                    }
-                })
-            },
-
-            async banConfirmation(row, index, details = []){
-                let title = `Unbanned ${row.name}`;
-                let text = `Ban Description: ${row.banned_description}`;
-                console.log(row.banned_at, details, 'row.banned_at, details');
-                if(!row.banned_at){
-                    const extension = parseInt(details.bannedDays) > 1 ? 'days' : 'day';
-                    title = `Ban ${row.name} for ${details.bannedDays} ${extension}`
-                    text = '';
-                }
-                const result = await sweetAlertConfirmation({},title, text);
-                if(result.isConfirmed){
-                    await this.ban(row.id, index, details);
-                }
-            },
-
-            async ban(userId, index, details = []){
-                const banIcon = 'bi-escape';
-                const unbannedIcon = 'bi-ban';
-                try {
-                    const response = await apiClient.put(`/api/admin/users/${userId}/ban`, {...details});
-                    const { message, data } = response.data;
-                    if(response.status == 200){
-                        const iconElement  = document.querySelector(`button[data="ban-${index}"] > i`);
-                        this.data[index] = this.formatData(data)
-                        if(!data.banned_at){
-                            iconElement.classList.remove(banIcon)
-                            iconElement.classList.add(unbannedIcon)
-                            iconElement.setAttribute('title','Ban user')
-                        }else{
-                            iconElement.classList.remove(unbannedIcon)
-                            iconElement.classList.add(banIcon)
-                            iconElement.setAttribute('title','Unbanned user')
-                        }
-                        sweetAlertNotification(message, "", "success");
-                    }
-                } catch (error) {
-                    console.error(error);
-                }
-            },
 
             showFilter(){
                 const element = document.querySelector('#user-filter-modal');

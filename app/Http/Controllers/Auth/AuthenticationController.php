@@ -76,6 +76,7 @@ class AuthenticationController extends Controller
     public function socialAuthenticationCallback(LoginApiRequest $request){
         try {
             $user = Socialite::driver('google')->user();
+            $isUserExists = User::where('email', $user->getEmail())->first();
 
             $authUser = User::updateOrCreate(
                 ['provider_id' => $user->getId()],
@@ -85,10 +86,23 @@ class AuthenticationController extends Controller
                     'email' => $user->getEmail(),
                 ]
             );
-            
+
+            // Check if the user is banned
+            if (!empty($isUserExists) && $isUserExists->isBanned()) {
+                // Return a JSON response indicating the user is banned
+                session()->flash('banned', [
+                    'error' => 'Your account has been banned.',
+                    'status_code' => 403,
+                    'endDate' => "Lifted at: ".date("F j, Y, g:i a", strtotime($isUserExists->banned_end_at))
+                ]);
+                return redirect('login');
+            }
+
             Auth::loginUsingId($authUser->id);
 
-          
+            if(empty($isUserExists)){
+                $this->resendVerification($request);
+            }
             session()->flash('auth-user', $authUser->toArray());
 
             return redirect('/');
@@ -104,7 +118,7 @@ class AuthenticationController extends Controller
         return redirect('/');
     }
 
-    public function resendVerification(Request $request){
+    public function resendVerification($request){
         event(new Registered($request->user()));
         return response(['message' => 'Verification link sent']);
     }

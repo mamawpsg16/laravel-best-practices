@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Authentication;
+namespace App\Http\Requests\Report;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ResetPasswordRequest extends FormRequest
+class StoreReportRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,14 +22,10 @@ class ResetPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email', 'exists:users,email']
-        ];
-    }
-
-    public function messages()
-    {
-        return [
-            'email.exists' => 'Email address not found, Please double-check and try again.',
+            'title' => ["required", "max:100"],
+            'description' => ["required","max:1000"],
+            'report_type' => ["required"],
+            'attachments' => ["sometimes"],
         ];
     }
 }

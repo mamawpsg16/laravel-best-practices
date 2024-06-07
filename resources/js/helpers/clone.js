@@ -5,7 +5,7 @@ export const nestedDeepClone = (data) => structuredClone(data);
 export const customDeepClone = function(obj) {
     // Handle null or undefined
     if (obj === null || obj === undefined) {
-        return obj;
+        return null;
     }
 
     // Handle primitive types

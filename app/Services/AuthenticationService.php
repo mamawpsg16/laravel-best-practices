@@ -31,6 +31,10 @@ class AuthenticationService{
     }
     public function loginUser($data){
         return DB::transaction(function () use($data) {
+            $user = User::where('email', $data['email'])->first();
+            if (!empty($user) && $user->isBanned()) {
+                return response(['error' => 'Your account has been banned', 'endDate' => "Lifted at: ".date("F j, Y, g:i a", strtotime($user->banned_end_at))], 403);
+            }
             if (Auth::attempt(['email' => $data['email'], 'password' => $data['password']], $data['remembered'])){
 
                 session()->regenerate();

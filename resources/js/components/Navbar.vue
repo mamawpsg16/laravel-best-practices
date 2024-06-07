@@ -9,29 +9,35 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbar-default">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li v-if="!authStore.isUserAuthenticated" class="nav-item">
-                        <router-link :to="{ name: 'login' }" class="nav-link">Login</router-link>
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex justify-content-end align-items-center">
+                    <li v-if="isGuest" class="nav-item">
+                        <router-link :to="{ name: 'login' }" class="nav-link" title="Logged In account">Login</router-link>
                     </li>
-                    <li v-if="!authStore.isUserAuthenticated" class="nav-item">
-                        <router-link :to="{ name: 'register' }" class="nav-link">Register</router-link>
+                    <li v-if="isGuest" class="nav-item">
+                        <router-link :to="{ name: 'register' }" class="nav-link" title="Create a new account">Register</router-link>
                     </li>
-                    <li v-if="authStore.isUserAuthenticated" disabled class="nav-item">
+                    <li v-if="isLoggedIn" disabled class="nav-item">
                         <button class="nav-link" type="button">Hello, <span class="text-danger">{{ authStore.userName }}</span></button>
                     </li>
-                    <li class="nav-item dropdown" v-if="authStore.isUserAuthenticated">
+                    <li class="nav-item dropdown" v-if="isLoggedIn">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-gear"></i>
                         </a>
                         <ul class="dropdown-menu">
-                            <li v-if="authStore.isUserAuthenticated && authStore.isUserVerified" class="nav-item">
-                                <router-link :to="{ name: 'admin-users' }" class="dropdown-item">Users</router-link>
+                            <li v-if="isVerifiedUser" class="nav-item">
+                                <router-link :to="{ name: 'report-create' }" class="dropdown-item" title="Submit a ticket">Create Report</router-link>
                             </li>
-                            <li v-if="authStore.isUserAuthenticated && authStore.isUserVerified" class="nav-item">
-                                <router-link :to="{ name: 'tasks' }" class="dropdown-item">Tasks</router-link>
+                            <li v-if="isVerifiedUser" class="nav-item">
+                                <router-link :to="{ name: 'admin-report' }" class="dropdown-item" title="View Reports">Reports</router-link>
                             </li>
-                            <li><a class="dropdown-item" href="#" @click="changePassword" v-if="!authStore.isSocialAuthenticated">Change Password</a></li>
-                            <li><a class="dropdown-item" href="#" @click.prevent="logout">Logout</a></li>
+                            <li v-if="isVerifiedUser" class="nav-item">
+                                <router-link :to="{ name: 'admin-user' }" class="dropdown-item" title="View Users">Users</router-link>
+                            </li>
+                            <li v-if="isVerifiedUser" class="nav-item">
+                                <router-link :to="{ name: 'task-index' }" class="dropdown-item" title="View Tasks">Tasks</router-link>
+                            </li>
+                            <li><a class="dropdown-item" href="#" @click="changePassword" v-if="isGuest" title="Change Account Credentials">Change Password</a></li>
+                            <li><a class="dropdown-item" href="#" @click.prevent="logout" title="Logout Account">Logout</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -51,6 +57,18 @@ import ChangePassword from '@js/views/authentication/ChangePassword.vue';
         },
         components:{
             ChangePassword
+        },
+
+        computed:{
+            isVerifiedUser(){
+                return (this.authStore.isUserAuthenticated && this.authStore.isUserVerified);
+            },
+            isGuest(){
+                return (!this.authStore.isUserAuthenticated);
+            },
+            isLoggedIn(){
+                return (this.authStore.isUserAuthenticated);
+            }
         },
         methods:{
             logout(){

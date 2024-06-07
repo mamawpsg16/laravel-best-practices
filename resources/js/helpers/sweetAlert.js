@@ -7,7 +7,7 @@ const toastConfig = {
     position: "bottom-end",
     timerProgressBar: true
 }
-export const sweetAlertNotification = (title, text = '', icon, isToast = true, config = {}, showConfirmButton = false, showCancelButton = false) => {
+export const sweetAlertNotification = (title, text = '', icon = 'success', isToast = true, config = {}, showConfirmButton = false, showCancelButton = false) => {
     let newConfig = config;
     if(isToast){
          newConfig = {...toastConfig, ...config}
@@ -15,7 +15,7 @@ export const sweetAlertNotification = (title, text = '', icon, isToast = true, c
     Swal.fire({ 
         title, 
         text,
-        icon: "success",
+        icon: icon,
         showConfirmButton,
         showCancelButton,
         ...newConfig

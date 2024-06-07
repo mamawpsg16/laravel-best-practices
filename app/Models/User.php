@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Task;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -37,9 +38,20 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'banned_at' => 'datetime:Y-m-d H:i:s',
+        'banned_end_at' => 'datetime:Y-m-d H:i:s',
     ];
 
     public function scopeIsVerified($q){
         return $q->whereNotNull('email_verified_at');
+    }
+
+    public function isBanned()
+    {
+        return $this->banned_at;
+    }
+
+    public function tasks(){
+        return $this->hasMany(Task::class);
     }
 }

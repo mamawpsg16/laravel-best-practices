@@ -2,11 +2,11 @@
     <form class="form-width mx-auto border border-gray-300 rounded-lg p-4 mt-5" @submit.prevent="register">
       <h4 class="text-center">Register</h4>
       <div class="mb-3">
-          <label for="name" class="form-label">Name</label>
+          <label for="name" class="form-label">Username</label>
           <Input type="text" id="register-name" autocomplete="name" class="form-control" placeholder="Enter name" v-model="name" :class="{ 'border border-danger': checkInputValidity(null, 'name', ['required']) }" required/>
           <div class="text-danger">
               <span v-if="v$.name.required.$invalid">
-                  Name is required.
+                Username is required.
               </span>
           </div>
       </div>

@@ -10,10 +10,6 @@ export default {
             type:String,
             default:'text'
         },
-        classes: {
-            type: Object,
-            default: () => ({})
-        }
     },
   emits: ['update:modelValue'],
 

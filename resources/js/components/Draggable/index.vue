@@ -6,9 +6,9 @@
               <p>{{ element.name }}</p>
               <template v-if="withButtons">
                 <div>
-                  <span class="btn btn-sm me-1"  @click="$emit('editItem', element, index, Itemkey)"><i class="bi bi-pencil-square"></i></span>
-                  <span class="btn btn-sm" @click="deleteTask(element.id)"><i class="bi bi-trash"></i></span>
-                  <span class="btn btn-sm" v-if="Itemkey == 'ongoing'" @click="markAsCompleted(element.id)"><i class="bi bi-check2-square"></i></span>
+                  <span class="btn btn-sm me-1"  @click="$emit('editItem', element, index, Itemkey)" title="Edit Task"><i class="bi bi-pencil-square"></i></span>
+                  <span class="btn btn-sm" @click="deleteTask(element.id)"><i class="bi bi-trash" title="Delete Task"></i></span>
+                  <span class="btn btn-sm" v-if="Itemkey == 'ongoing'" @click="markAsCompleted(element.id)"  title="Mark as completed"><i class="bi bi-check2-square"></i></span>
                 </div>
               </template>
             </div>
@@ -95,11 +95,11 @@ import { sweetAlertConfirmation, sweetAlertNotification } from "@js/helpers/swee
           },
 
           async updateStatus(id){
-            await axios.post('/api/tasks/update-status',{id:id, status:2}).then((res) =>{
+            await axios.post('/api/tasks/update-status',{id:id, status:2}).then((response) =>{
               const index = this.data.findIndex(item => item.id === id);
               if (index !== -1) {
                 const task = this.data.splice(index, 1);
-                this.$emit('updateCompletedTasks', task[0])
+                this.$emit('updateCompletedTasks', response.data.data)
               }
             }).catch((err) =>{
               console.log(err);

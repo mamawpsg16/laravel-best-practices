@@ -9,8 +9,14 @@
       :pagination-options="getPaginationOptions"
       :styleClass="classes"
       >
+        <template v-if="tableActionHeader" #table-actions>
+            <slot name="table-action-content"></slot>
+        </template>
         <template #table-row="{ row, column, index, formattedRow }">
             <slot name="content" :row="row" :column="column" :index="index" :formattedRow="formattedRow"></slot>
+        </template>
+        <template v-if="tableActionFooter" #table-actions-bottom>
+            <button class="btn btn-sm">BOTTOM</button>
         </template>
     </vue-good-table>
 </template>
@@ -34,17 +40,30 @@ import { VueGoodTable } from 'vue-good-table-next';
             },
             searchOptions:{
                 type:[Object],
-                default:{}
+                default:{
+                    enabled: true,
+                    skipDiacritics: true,
+                    placeholder: 'Search...',
+                }
             },
             paginationOptions:{
                 type:[Object],
                 default:{
                     enabled: true,
+                    infoFn: (params) => `Showing ${params.firstRecordOnPage} to ${params.lastRecordOnPage} of page ${params.currentPage}`,
                 }
             },
             classes:{
                 type:[String],
                 default:'vgt-table bordered striped'
+            },
+            tableActionHeader:{
+                type:Boolean,
+                default:false
+            },
+            tableActionFooter:{
+                type:Boolean,
+                default:false
             }
         },
         components: {

@@ -32,8 +32,8 @@
           <span v-if="v$.password.required.$invalid"> Password is required. </span>
         </div>
       </div>
-      <span v-if="isCredentialInvalid" class="text-danger mb-1">{{ isCredentialInvalid }}</span>
-      <div class="form-check mb-1">
+      <span v-if="isCredentialInvalid" class="text-danger">{{ isCredentialInvalid }}</span>
+      <div class="form-check mb-1 mt-2">
           <Input id="remember" type="checkbox" v-model="remembered" class="form-check-input"/>
           <label for="remember" class="form-check-label ms-1">Remember me</label>
       </div>
@@ -52,13 +52,12 @@
   
 <script>
   import Input from '@js/components/Form/Input.vue'
-  import { useAuthStore } from '../../stores/authStore.js';
+  import { useAuthStore } from '@js/stores/authStore.js';
   import { useVuelidate } from '@vuelidate/core'
   import { required, email } from '@vuelidate/validators';
   import { checkValidity  } from '@js/helpers/Vuelidate.js';
   import ResetPasswordLink from '@js/views/authentication/ResetPasswordLink.vue';
   import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
-  import { deepClone, nestedDeepClone, customDeepClone } from '@js/helpers/clone.js'
   export default {
     setup () {
       return { v$: useVuelidate({ $autoDirty : true, $lazy: true}) }
@@ -90,25 +89,12 @@
       Input,
       ResetPasswordLink
     },
-    created(){
-      const person = {
-        name: "John Doe",
-        age: 30,
-        f: function() { return 'test'; },
-        occupation: {
-          jobs:['Web Dev', 'Data Analyst']
-        },
-      };
-      const personClone = customDeepClone(person);
-      console.log('ABC')
-      // console.log(personClone.occupation = 'Web Developer','personClone');
-      // console.log(personClone.f(),'person');
-      // console.log(person,'person');
-      // console.log(null || 'SHEESH');
-      // console.log('SHEESH' && 1 && null && 'abc');
+    mounted(){
+      if(this.authStore.isUserBanned){
+        sweetAlertNotification(this.authStore.userOtherDetails.error, this.authStore.userOtherDetails.endDate, "info", false)
+      }
     },  
     methods: {
-
       togglePasswordVisibility() {
         const passwordVisibilityToggle = document.getElementById('passwordVisibilityToggle');
         this.showPassword = !this.showPassword;
@@ -157,8 +143,12 @@
               this.isLoggingIn = false;
           }
         } catch (error) {
-          this.isCredentialInvalid = error?.response?.data.error
           this.isLoggingIn = false;
+          if(error.response.status == 403){
+            sweetAlertNotification(error.response.data.error, error.response.data.endDate, "info", false)
+            return;
+          }
+          this.isCredentialInvalid = error?.response?.data.error
         }
       }
     }
