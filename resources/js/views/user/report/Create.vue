@@ -17,6 +17,21 @@
               </span>
           </div>
         </div>
+        <div class="mb-2" v-if="isAccountType">
+            <label for="email" class="form-label" >Email <code>*</code></label>
+            <Input type="email" id="email" autocomplete="email" :class="{ 'border border-danger': checkInputValidity('form', 'email', ['required', 'email']) }" class="form-control py-2" placeholder="Enter email" v-model="form.email"/>
+            <div v-if="errors?.email" class="text-danger">
+                {{ errors?.email[0] }}
+            </div>
+            <div class="text-danger">
+                <span v-if="v$.form.email.required.$invalid">
+                  Email is required.
+                </span>
+                <span v-if="v$.form.email.$invalid" :class="{'d-block' : v$.form.email.required.$invalid}">
+                  Email must be valid.
+                </span>
+            </div>
+        </div>
         <div class="mb-2">
             <label for="title" class="form-label" >Title <code>*</code></label>
             <Input type="title" id="title" autocomplete="title" :class="{ 'border border-danger': checkInputValidity('form', 'title', ['required', 'maxLength']) }" class="form-control py-2" placeholder="Enter title" v-model="form.title"/>
@@ -27,7 +42,7 @@
                 <span v-if="v$.form.title.required.$invalid">
                   Title is required.
                 </span>
-                <span v-if="v$.form.title.maxLength.$invalid">
+                <span v-if="v$.form.title.maxLength.$invalid" :class="{'d-block' : v$.form.title.required.$invalid}">
                     Title must only contain 100 characters.
                 </span>
             </div>
@@ -42,7 +57,7 @@
                 <span v-if="v$.form.description.required.$invalid">
                   Description is required.
                 </span>
-                <span v-if="v$.form.description.maxLength.$invalid">
+                <span v-if="v$.form.description.maxLength.$invalid" :class="{'d-block' : v$.form.description.required.$invalid}">
                   Description must only contain 1000 characters.
                 </span>
             </div>
@@ -72,7 +87,7 @@
     import apiClient from '@js/helpers/apiClient.js';
     import Multiselect from 'vue-multiselect'
     import { useVuelidate } from '@vuelidate/core'
-    import { required, maxLength } from '@vuelidate/validators';
+    import { required, maxLength, email } from '@vuelidate/validators';
     import { checkValidity  } from '@js/helpers/Vuelidate.js';
     import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
     import { component as Viewer } from "v-viewer"
@@ -123,13 +138,28 @@
           },
         }
       },
-      validations () {
-        return {
-          form:{
-            title: { required,   maxLength: maxLength(100) },
-            description: { required,  maxLength: maxLength(1000) },
-            report_type: { required },
+
+      computed: {
+        isAccountType() {
+          return this.form.report_type && this.form.report_type.account;
+        },
+        validationRules() {
+          const rules = {
+            title: { required, maxLength: maxLength(100) },
+            description: { required, maxLength: maxLength(1000) },
+            report_type: { required }
+          };
+
+          if (this.isAccountType) {
+            rules.email = { required, email };
           }
+
+          return rules;
+        }
+      },
+      validations() {
+        return {
+          form: this.validationRules
         }
       },
       created(){

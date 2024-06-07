@@ -68,7 +68,7 @@ class ReportController extends Controller
     }
 
     public function getReportTypes(){
-        $data = ReportType::select(['name as label', 'id as value', 'description'])->active()->get();
+        $data = ReportType::select(['name as label', 'id as value', 'description', 'account'])->active()->get();
 
         return response(['options' => $data]);
     }
