@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Task;
 
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -16,8 +17,10 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $data = Task::orderBy('status')->orderBy('order')->get();
-        // $details = DB::select('CALL spGetTasks()');
+        $data = Task::whereHas('user', function ($query){
+            $query->where('id', auth()->user()->id);
+        })->get();
+
        return response(['data' => $data]);
     }
 
@@ -36,13 +39,6 @@ class TaskController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(Task $task)
-    {
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(TaskUpdateRequest $request, Task $task)
@@ -52,13 +48,17 @@ class TaskController extends Controller
         $data = Task::findOrFail($task->id);
         return response(['data' => $data]);
     }
+    
     public function updateStatus(Request $request){
         $task = Task::findOrFail($request->id);
         $data = [
-            'status' => $request->status,
-            'start_timestamp' =>  null
+            'status' => $request->status
         ];
-        if($request->status != 0){
+
+        if($request->status == 0){
+            $data['start_timestamp'] =  null;
+        }
+        if($request->status == 1){
             $data['start_timestamp'] =  now();
         }
         
@@ -67,7 +67,7 @@ class TaskController extends Controller
         }
         $task->update($data);
 
-        return response(['success' => true]);
+        return response(['success' => true, 'data' => $task]);
     }
     
     public function updateOrder(Request $request){
@@ -100,21 +100,26 @@ class TaskController extends Controller
             ->where('status', 1)
             ->max('order');
 
-        $task->update(['order' =>  $maxOrder + 1, 'status' => 1]);
+        $task->update(['order' =>  $maxOrder + 1, 'status' => 1 ,'start_timestamp' => now(), 'end_timestamp' => null]);
 
         return response(['data' => $task]);
     }
 
     public function getTaskStatusDetails(){
         $taskStatusCounts = Task::select(DB::raw('COUNT(id) as count'), 'status')
+                                ->where('user_id', auth()->id())
                                 ->groupBy('status')
                                 ->orderBy('status')
                                 ->get()
                                 ->toArray();
+                                
         return response(['data' => $taskStatusCounts]);
     }
     public function updateTasks(Request $request){
-        dd('WTF');
+        $taskIds = $request->taskIds;
+        Task::whereIn('id', $taskIds)->update(['status' => 1, 'start_timestamp' => now(), 'end_timestamp' => null]);
+
+        return response(['message' => 'Tasks Succesfully Restored']);
     }
     
 }

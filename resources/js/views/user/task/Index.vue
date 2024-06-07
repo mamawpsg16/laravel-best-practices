@@ -4,13 +4,13 @@
   <CompletedTasks :tasks="completed" @restored-tasks="taskAdded" ></CompletedTasks>
   <div class="row mt-3">
     <div class="d-flex justify-content-end mt-2">
-      <button type="button" class="btn btn-primary text-white me-2" @click="createTask">
+      <button type="button" class="btn btn-primary text-white me-2" @click="createTask" title="Add New Task">
        <i class="bi bi-plus-circle"></i>
       </button>
-      <button type="button" class="btn btn-primary text-white me-2" @click="showCompletedTasks">
+      <button type="button" class="btn btn-primary text-white me-2" @click="showCompletedTasks" title="View Completed Tasks">
        <i class="bi bi-list-check"></i>
       </button>
-      <button type="button" class="btn btn-info text-white me-2" v-if="showSaveOrderBtn" @click="updateTasksOrder"  title="Save order changes">
+      <button type="button" class="btn btn-info text-white me-2" v-if="showSaveOrderBtn && (pendingCount || ongoingCount)" @click="updateTasksOrder"  title="Save order changes">
        <i class="bi bi-floppy"></i>
       </button>
     </div>
@@ -38,7 +38,8 @@
 <script>
 import Create from './Create.vue';
 import Edit from './Edit.vue';
-import { sweetAlertNotification, SwalDefault } from '@js/helpers/sweetAlert.js'
+import { sweetAlertNotification } from '@js/helpers/sweetAlert.js'
+import formatter  from '@js/helpers/formatter.js';
 import CompletedTasks from './Components/Completed.vue';
 import Draggable from '@js/components/Draggable/Index.vue';
 import apiClient from '@js/helpers/apiClient.js';
@@ -129,7 +130,6 @@ export default {
       if(!restore){
         this[this.statuses[data.status].toLowerCase()].unshift(data);
       }else{
-        console.log(data,'data');
         const mergeData = [...this.ongoing, ...data]
         this.ongoing = mergeData;
       }
@@ -142,9 +142,9 @@ export default {
     updateCompletedTasks(task){
       const formattedTask = {
         ...task,
-        due_date_text:this.formatDate(task.due_date),
-        start_date_text:this.formatDate(task.start_timestamp),
-        completion_date_text:this.formatDate(task.end_timestamp),
+        due_date_text: formatter.formatReadableDateTime(task.due_date),
+        start_date_text: formatter.formatReadableDateTime(task.start_timestamp),
+        completion_date_text: formatter.formatReadableDateTime(task.end_timestamp),
       }
       this.completed.unshift(formattedTask);
     },
@@ -176,7 +176,8 @@ export default {
       this.showModal = false
     },
 
-    gropedData(data) {
+    groupedData(data) {
+      if(!data) return;
       // Initialize an empty map to hold the grouped data
       const groupDetails = new Map(Array.from({ length: 3 }, (_, i) => [i, []]));
       // Iterate over each item in the data
@@ -190,28 +191,12 @@ export default {
       return Object.fromEntries(groupDetails);
     },
 
-    formatDate(datetime, timestamp=true){
-      let options = { year: 'numeric', month: 'long', day: 'numeric' };
-      if(timestamp == true){
-        const time = {
-          hour: 'numeric',
-          minute: 'numeric',
-          second: 'numeric'
-        }
-        options = {...options,...time }
-      }
-      const date = new Date(datetime);
-      const formattedDate = date.toLocaleDateString('en-US', options);
-
-      return formattedDate;
-    },
-
     formatTaskData(task){
       return {
         ...task,
-        due_date_text: this.formatDate(task.due_date),
-        start_date_text: this.formatDate(task.start_timestamp),
-        completion_date_text: this.formatDate(task.end_timestamp),
+        due_date_text: formatter.formatReadableDateTime(task.due_date),
+        start_date_text: formatter.formatReadableDateTime(task.start_timestamp),
+        completion_date_text: formatter.formatReadableDateTime(task.end_timestamp),
       }
     },
 
@@ -222,8 +207,8 @@ export default {
     async getData() {
       try {
         const response = await apiClient.get('/api/tasks');
-        const { data } = response.data;
-        const { '0': pending, '1': ongoing, '2': completed } = this.gropedData(data);
+        const { data } = response?.data;
+        const { '0': pending, '1': ongoing, '2': completed } = this.groupedData(data);
         this.pending = pending;
         this.ongoing = ongoing;
         this.completed = this.formatCompletedTasks(completed);

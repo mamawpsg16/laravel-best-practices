@@ -5,17 +5,21 @@ const NotFound = () => import('@js/views/errors/NotFound.vue')
 const Forbidden = () => import('@js/views/errors/Forbidden.vue')
 const Dashboard = () => import('@js/views/dashboard/Index.vue')
 const About = () => import('@js/views/example/About.vue')
-const User = () => import('@js/views/user/Index.vue')
-const Tasks = () => import('@js/views/task/Index.vue')
 const EmailVerification = () => import('@js/views/authentication/EmailVerification.vue')
 const ResetPasswordConfirmation = () => import('@js/views/authentication/ResetPasswordConfirmation.vue')
 
-const UserIndex = () => import('@js/views/admin/user/Index.vue')
+/** ADMIN */
+const AdminUserMonitoring = () => import('@js/views/admin/user/Index.vue')
+const AdminReportMonitoring = () => import('@js/views/admin/report/Index.vue')
+
+/** USER */
+const UserTaskIndex = () => import('@js/views/user/task/Index.vue')
+const UserReportCreate = () => import('@js/views/user/report/Create.vue')
 
 const routes = [
+    /** CATCH NOT DEFINED ROUTE */
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound, meta: { requiresAuth: true } },
-    // OR
-    // { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('./views/UserDetails.vue') , meta: { requiresAuth: true }  },
+    
     
     /** UNAUTHENTICATED ROUTES */
     { path: '/login', component: Login,  name:'login', meta: { requiresAuth: false } },
@@ -26,21 +30,33 @@ const routes = [
     { path: '/', component: Dashboard, name:'dashboard',meta: { requiresAuth: true } },
     { path: '/forbidden', component: Forbidden, name:'forbidden',meta: { requiresAuth: true } },
     { path: '/about', component: About, name:'about', meta: { requiresAuth: true } },
-    { path: '/users/:username', component: User,  name:'user', meta: { requiresAuth: true } },
-    { path: '/tasks', component: Tasks,  name:'tasks', meta: { requiresAuth: true } },
     { path: '/email-verification', component: EmailVerification,  name:'email-verification', meta: { requiresAuth: true } },
-    
+
+    /** USER */
+    { path: '/tasks', component: UserTaskIndex,  name:'task-index', meta: { requiresAuth: true } },
+    { path: '/report/create', component: UserReportCreate, name:'report-create', meta: { requiresAuth: true } },
+
+    /** ADMIN */
     {
       path: '/admin',
       children: [
         {
-          // UserProfile will be rendered inside User's <router-view>
-          // when /user/:id/profile is matched
           path: 'users',
-          component: UserIndex,
-          name:'admin-users',
+          component: AdminUserMonitoring,
+          name:'admin-user',
           meta: { requiresAuth: true }
         },
+        { 
+          path: '/report',
+          children: [
+            {
+              path: '',
+              component: AdminReportMonitoring,
+              name: 'admin-report',
+              meta: { requiresAuth: true } 
+            },
+          ],
+        }
       ],
     },
 

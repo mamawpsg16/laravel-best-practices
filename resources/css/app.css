@@ -4,6 +4,8 @@
 @import "ag-grid-community/styles/ag-grid.css";
 @import "nprogress/nprogress.css";
 @import 'vue-good-table-next/dist/vue-good-table-next.css';
+@import './custom/multiselect.css';
+@import 'viewerjs/dist/viewer.css';
 
 .flip-list-move {
     transition: transform 0.5s;
@@ -69,3 +71,12 @@
 .vgt-global-search{
     padding: 10px 20px !important;
 }
+
+.btn.show{
+    border-color:transparent !important;
+}
+
+i .action{
+    font-size:18px;
+}
+

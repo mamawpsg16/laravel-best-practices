@@ -1,14 +1,16 @@
 <template>
-    <Modal id="completed-tasks-modal" title="Completed Tasks" modal_size="modal-lg" :enableBackdrop="true" :disableEscape="false">
+    <Modal id="completed-tasks-modal" title="Completed Tasks" modal_size="modal-xl" :enableBackdrop="true" :disableEscape="false">
         <template #content>
-            <div class="my-2">
-                <div class="d-flex justify-content-end mb-2">
-                    <button v-if="hasRestoreButton" class="btn btn-md" @click="restoreConfirmation"><i class="bi bi-arrow-repeat"></i> Restore All</button>
-                </div>
-                <VueGoodTable :columns="columns" :rows="data" ref="vueGoodTable" :searchOptions="{ enabled: true }" :selectOptions="{ enabled: true, disableSelectInfo:true, selectOnCheckboxOnly:true }" @selected-rows-change="onSelectedRowsChange">
+            <div class="my-2 ">
+                <VueGoodTable :columns="columns" :rows="data" :tableActionHeader="true" ref="vueGoodTable" :searchOptions="{ enabled: true }" :selectOptions="{ enabled: true, disableSelectInfo:true, selectOnCheckboxOnly:true }" @selected-rows-change="onSelectedRowsChange">
+                    <template #table-action-content>
+                        <div class="d-flex justify-content-center align-items-center" title="Actions">
+                            <button v-if="hasRestoreButton" class="btn btn-sm" @click="restoreConfirmation"><i class="bi bi-arrow-clockwise" title="Restore All" style="font-size: 18px;"></i></button>
+                        </div>
+                    </template>
                     <template #content="{ row, column, index, formattedRow }">
-                    <span v-if="column.field == 'action'">
-                        <button  class="btn btn-md btn-secondary" title="restore task to ongoing" @click="restore(row.id)"><i class="bi bi-arrow-repeat"></i></button>
+                    <span v-if="column.field == 'action'" class="d-flex justify-content-center align-items-center" title="Actions">
+                        <button  class="btn btn-sm" title="restore task to ongoing" @click="restore(row.id)"><i class="bi bi-arrow-repeat"></i></button>
                     </span>
                     <span v-else>
                         {{row[column.field]}}
@@ -39,29 +41,33 @@ import { sweetAlertNotification, sweetAlertConfirmation } from '@js/helpers/swee
             return{
                 columns: [
                     {
-                    label: 'Task',
-                    field: 'name'
+                        label: 'Action',
+                        field: 'action',
                     },
                     {
-                    label: 'Description',
-                    field: 'description',
+                        label: 'Task',
+                        field: 'name',
+                        width: '200px'
                     },
                     {
-                    label: 'Start Date',
-                    field: 'start_date',
+                        label: 'Description',
+                        field: 'description',
+                        width: '200px'
                     },
                     {
-                        
-                    label: 'Completion Date',
-                    field: 'completion_date_text',
+                        label: 'Start Date',
+                        field: 'start_date_text',
+                        width: '230px'
                     },
                     {
-                    label: 'Due Date',
-                    field: 'due_date_text',
+                        label: 'Completion Date',
+                        field: 'completion_date_text',
+                        width: '230px'
                     },
                     {
-                    label: 'Action',
-                    field: 'action',
+                        label: 'Due Date',
+                        field: 'due_date_text',
+                        width: '230px'
                     },
                 ],
                 data:[],
@@ -92,27 +98,16 @@ import { sweetAlertNotification, sweetAlertConfirmation } from '@js/helpers/swee
             },
             
             async restoreConfirmation(){
-                const result = await sweetAlertConfirmation();
+                const result = await sweetAlertConfirmation({}, 'Restore Tasks');
                 if(result.isConfirmed){
-                    console.log('CONFIRMED');
                     await this.updateRestoredTaskStatus();
                 }
             },
 
             async updateRestoredTaskStatus() {
-                console.log('PASOK');
                 const taskIds = this.selectedRows.map(row => row.id);
-                const formData = new FormData();
-                formData.append('taskIds', JSON.stringify(taskIds));
-                
                 try {
-                    console.log('try PASOK');
-                    const response = await axios.post('/api/test-test', {id:1}, {
-                        headers: {
-                            'Accept': 'application/json' // Expecting JSON response
-                        }
-                    });
-                    console.log('API response:', response);
+                    const response = await axios.post('/api/tasks/update-tasks', {taskIds});
 
                     if (response.status === 200) {
                         taskIds.forEach(taskId => {
@@ -122,11 +117,10 @@ import { sweetAlertNotification, sweetAlertConfirmation } from '@js/helpers/swee
                             }
                         });
                         this.$emit('restoredTasks', this.selectedRows, true);
-                        sweetAlertNotification("Tasks Successfully Restored");
+                        sweetAlertNotification(response.data.message);
                     }
                 } catch (error) {
-                    console.error('Error updating restored task status:', error);
-                    sweetAlertNotification("Error restoring tasks. Please try again.");
+                    sweetAlertNotification("Error restoring tasks. Please try again.", "", "error");
                 }
             },
 

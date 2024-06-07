@@ -15,7 +15,19 @@ import { useAuthStore } from '@js/stores/authStore.js';
 // window.bootstrap = bootstrap;
 
 export default {
-  props:["authuser"],
+  props:{
+    authuser:{
+      type:[Array,Object],
+      default:{}
+    },
+    banned:{
+      type:[Array,Object],
+      default:{
+        error:null,
+        status_code: 200
+      }
+    }
+  },
   data() {
     return {
       authStore:useAuthStore()
@@ -33,6 +45,10 @@ export default {
   mounted(){
     if(this.authuser){
       this.authStore.setAuthenticated(true);
+    }
+
+    if(this.banned?.status_code == 403){
+      this.authStore.setBannedConfig(this.banned);
     }
   }
 };

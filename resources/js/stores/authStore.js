@@ -5,7 +5,8 @@ import apiClient from '@js/helpers/apiClient.js';
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user:null,
-    isAuthenticated:false
+    isAuthenticated:false,
+    userOtherDetails:{}
   }),
 
   getters: {
@@ -20,6 +21,9 @@ export const useAuthStore = defineStore('auth', {
     },
     isSocialAuthenticated(state){
       return state.user?.provider;
+    },
+    isUserBanned(state){
+      return state.userOtherDetails?.status_code == 403;
     },
   },
 
@@ -52,7 +56,6 @@ export const useAuthStore = defineStore('auth', {
 
     async login(email, password, remembered){
         await apiClient.get("sanctum/csrf-cookie");
-
         return await apiClient.post('/login', {
           email: email,
           password: password,
@@ -107,9 +110,13 @@ export const useAuthStore = defineStore('auth', {
     setAuthenticated(isAuthenticated) {
       this.isAuthenticated = isAuthenticated
     },
-
+    
     setUser(user) {
       this.user = user
+    },
+
+    setBannedConfig(session) {
+      this.userOtherDetails = session
     },
   },
 });
