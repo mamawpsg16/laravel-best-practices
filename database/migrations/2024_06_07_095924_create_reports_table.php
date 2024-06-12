@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('report_type_id')->constrained();
-            $table->varchar('uuid',100);
+            $table->string('uuid',100);
             $table->string('title',100);
             $table->mediumText('description');
             $table->timestamps();

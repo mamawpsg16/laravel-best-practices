@@ -31,23 +31,8 @@
               </template>
             </viewer>
         </div>
-        <div class="mb-2">
-            <label for="" class="form-label">Send A Message</label>
-            <TextArea v-model="message"  :class="{ 'border border-danger': checkInputValidity(null, 'message', ['required', 'maxLength']) || errors?.message }" required></TextArea>
-            <div v-if="errors?.message" class="text-danger">
-                    {{ errors?.message[0] }}
-                </div>
-                <div class="text-danger">
-                    <span v-if="v$.message.required.$invalid">
-                    Message is required.
-                    </span>
-                    <span v-if="v$.message.maxLength.$invalid" :class="{'d-block' : v$.message.required.$invalid}">
-                    Message must only contain 1000 characters.
-                    </span>
-                </div>
-            <button class="btn btn-sm form-control bg-success-subtle my-2" type="button" @click="handleSendMessage"  :disabled="isSending"> {{  isSending ? 'Sending' : 'Send' }} <i class="bi bi-send"></i></button>
-        </div>
-        <conversations  v-for="comment in comments" :key="comment.id" :comment="comment"/>
+        <reply :id="details.id"> </reply>
+        <conversations   :replies="replies" :id="details.id" v-if="details"/>
     </div>
 </template>
 
@@ -55,7 +40,6 @@
 import formatter  from '@js/helpers/formatter.js';
 import Input from '@js/components/Form/Input.vue'
 import apiClient from '@js/helpers/apiClient.js';
-import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
 import TextArea from '@js/components/Form/TextArea.vue'
 import CKEditor from '@ckeditor/ckeditor5-vue';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
@@ -64,7 +48,7 @@ import { viewerOptions } from './viewerConfig.js';
 import conversations from './components/conversations.vue';
 import { checkValidity  } from '@js/helpers/Vuelidate.js';
 import { useVuelidate } from '@vuelidate/core'
-import { required, maxLength, email } from '@vuelidate/validators';
+import reply from './components/reply.vue';
     export default {
         setup () {
             return { v$: useVuelidate({ $autoDirty : true, $lazy: true}) }
@@ -74,7 +58,8 @@ import { required, maxLength, email } from '@vuelidate/validators';
             TextArea,
             ckeditor: CKEditor.component,
             Viewer,
-            conversations
+            conversations,
+            reply
         },
         data(){
             return{
@@ -85,9 +70,6 @@ import { required, maxLength, email } from '@vuelidate/validators';
                     { id: 3, author: 'Alice', text: 'Thanks for the feedback!', date: '2023-06-12' },
                     { id: 4, author: 'Bob', text: 'You\'re welcome!', date: '2023-06-13' },
                 ],
-                errors:[{
-                    message:false,
-                }],
                 images:[],
                 editor: ClassicEditor,
                 editorData: "",
@@ -104,8 +86,7 @@ import { required, maxLength, email } from '@vuelidate/validators';
                     placeholder: 'Start typing here...',
                 },
                 details:{},
-                message:null,
-                isSending: false
+                replies:[]
             }
         },
         computed:{
@@ -116,11 +97,7 @@ import { required, maxLength, email } from '@vuelidate/validators';
         async created(){
             await this.getData();
         },
-        validations() {
-            return {
-                message: { required, maxLength: maxLength(1000) }
-            }
-        },
+        
 
         mounted() {
         },
@@ -163,31 +140,25 @@ import { required, maxLength, email } from '@vuelidate/validators';
                 }
             },
 
+            async getConversations(){
+                try {
+                    const response = await apiClient.get(`/api/reports/replies`, {params:{ reportId: this.details.id} })
+                    if(response.status == 200){
+                        const { replies } = response.data;
+                        this.replies = replies;
+s                    }
+                } catch (error) {
+                    
+                }
+            },
+
             async showConversation(){
+                await this.getConversations();
                 const modal_id = document.getElementById("report-conversation-modal");
                 console.log(modal_id,'modal_id');
                 const modal = bootstrap.Modal.getOrCreateInstance(modal_id);
                 modal.show();
             },
-
-            async handleSendMessage(){
-                if (!(await this.v$.$validate())) return; // Return if validation fails
-
-                this.isSending = true;
-
-                try {
-                    const response = await apiClient.post(`/api/reports/send-message`,{id:this.details.id, message:this.message})
-
-                    if(response.status == 200){
-                        // this.resetForm();
-                        // sweetAlertNotification("Task Added", "Added Successfully", "success");
-                    }
-                } catch (error) {
-                    this.errors = error.errors;
-                } finally {
-                    this.isSending = false;
-                }
-            }
         }
     }
 </script>

@@ -1,4 +1,3 @@
-<x-mail::message>
 <div class="container">
     <div class="row">
         <div class="col-md-8 offset-md-2">
@@ -10,4 +9,3 @@
 
 Thanks,<br>
 Laravel Solutions Team.
-</x-mail::message>

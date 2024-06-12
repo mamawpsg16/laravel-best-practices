@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Services\User\ReportService;
 use App\Http\Requests\Report\StoreReportRequest;
 use App\Http\Requests\Report\UpdateReportRequest;
+use App\Models\Report\ReportReply;
 
 class ReportController extends Controller
 {
@@ -100,5 +101,13 @@ class ReportController extends Controller
     public function reply (Request $request){
         $report = Report::findOrFail($request->id);
         $report->replies()->create(['description' => $request->message, 'user_id' => auth()->user()->id]);
+        return response(['message' => 'Message sent successfully.']);
+    }
+
+    public function getReplies(Request $request){
+        $reportId = $request->query('reportId');
+        $replies = ReportReply::where('report_id', $reportId)->get();
+        return response(['replies' => $replies]);
+
     }
 }

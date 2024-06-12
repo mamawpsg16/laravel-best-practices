@@ -34,6 +34,7 @@ Route::middleware(['auth:sanctum', 'banned'])->group(function () {
 
     /** REPORT */
     Route::prefix('reports')->group(function () {
+        Route::get('/replies', [ReportController::class, 'getReplies']);
         Route::get('/types', [ReportController::class, 'getReportTypes']);
         Route::put('mark-as-read/{report}', [ReportController::class, 'markAsRead']);
         Route::post('send-message', [ReportController::class, 'reply']);

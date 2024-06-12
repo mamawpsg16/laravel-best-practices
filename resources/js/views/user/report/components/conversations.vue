@@ -1,61 +1,66 @@
 <template>
     <Modal id="report-conversation-modal" title="Conversation" modal_size="modal-lg">
         <template #content>
-            <div class="comment">
-                <h5>{{ comment.author }}</h5>
-                <p>{{ comment.text }}</p>
-                <small>{{ formatDate(comment.date) }}</small>
+            <div v-for="reply in replies" :key="reply.id">
+              {{ reply.description }}
             </div>
+            <reply :id="reportId"> </reply>
         </template>
     </Modal>
   </template>
   
   <script>
 import Modal from '@js/components/Modal.vue';
+import reply from './reply.vue';
+
   export default {
     name: 'CommentsList',
     props: {
-        comment: {
-        type: Object,
-        required: true
+        replies: {
+          type: Object,
+          required: true
+        },
+        id:{
+          type:Number,
+          default:null
         }
     },
-    
+    components:{
+        Modal,
+        reply
+    },
     data() {
       return {
-        
+        reportId:null
       };
     },
-    components:{
-        Modal
-    },
+ 
     methods: {
         formatDate(date) {
         return new Date(date).toLocaleDateString();
         }
     },
-    computed: {
-      commentsText() {
-        return this.comments.map(comment => {
-          const side = comment.author === 'Alice' ? 'Right' : 'Left';
-          return `${side} (${comment.author}): ${comment.text}`;
-        }).join('\n');
-      }
+    watch:{
+        id(newId){
+            if(newId){
+                this.reportId = newId;
+            }
+        },
     }
   };
   </script>
   
   
 <style scoped>
-.comment {
+.reply {
   padding: 10px;
   margin-bottom: 10px;
   border-radius: 5px;
 }
-.comment h3 {
+.reply h3 {
   margin: 0;
 }
-.comment small {
+.reply small {
   color: #888;
 }
 </style>
