@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('report_attachments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('report_id')->constrained();
+            $table->string('filename',200);
             $table->text('attachment');
             $table->timestamps();
         });

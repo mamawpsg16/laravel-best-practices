@@ -148,7 +148,7 @@ import { customDeepClone } from '@js/helpers/clone.js';
 
             async getData(reset = false) {
                 try {
-                    const response = await apiClient.get('/api/admin/users');
+                    const response = await apiClient.get('/api/users');
                     if(response.status == 200){
                         if(reset){
                             this.filterReset = true;
@@ -201,7 +201,6 @@ import { customDeepClone } from '@js/helpers/clone.js';
             async banConfirmation(row, index, details = []){
                 let title = `Unbanned ${row.name}`;
                 let text = `Ban Description: ${row.banned_description}`;
-                console.log(row.banned_at, details, 'row.banned_at, details');
                 if(!row.banned_at){
                     const extension = parseInt(details.bannedDays) > 1 ? 'days' : 'day';
                     title = `Ban ${row.name} for ${details.bannedDays} ${extension}`
@@ -217,7 +216,7 @@ import { customDeepClone } from '@js/helpers/clone.js';
                 const banIcon = 'bi-escape';
                 const unbannedIcon = 'bi-ban';
                 try {
-                    const response = await apiClient.put(`/api/admin/users/${userId}/ban`, {...details});
+                    const response = await apiClient.put(`/api/users/${userId}/ban`, {...details});
                     const { message, data } = response.data;
                     if(response.status == 200){
                         const iconElement  = document.querySelector(`button[data="ban-${index}"] > i`);

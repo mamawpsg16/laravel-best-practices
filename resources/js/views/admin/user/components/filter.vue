@@ -6,7 +6,7 @@
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
-            <div class="row">
+            <div class="row mb-2">
                 <div class="col-md-6">
                     <label for="email" class="form-label">Creation Date</label>
                     <flat-pickr v-model="filters.date" class="form-control" :config="flatpickrConfig" placeholder="Select Creation Date"/>
@@ -21,7 +21,7 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row mb-2">
                 <div class="col-md-6">
                     <label for="email" class="form-label">Status</label>
                     <multiselect v-model="filters.status" deselect-label="Can't remove this value" track-by="label" label="label" placeholder="Select status" style="margin-bottom:10px;" :options="filters.options.status" :searchable="false"></multiselect>
@@ -101,9 +101,9 @@ import callOptimization from '@js/helpers/callOptimization.js';
         methods:{
             async handleFilter(){
                 this.isFetching = true;
-                const bannedStatus = this.filters.status ? this.filters.status.value : this.status;
+                const bannedStatus = this.filters.status ? this.filters.status.value : this.filters.status;
                 try {
-                    const response = await apiClient.get('/api/admin/users',{ params:{ bannedStatus:bannedStatus, date:this.filters.date, userIds: this.filters.selectedUsers?.map(user => user.value)  } } )
+                    const response = await apiClient.get('/api/users',{ params:{ bannedStatus:bannedStatus, date:this.filters.date, userIds: this.filters.selectedUsers?.map(user => user.value)  } } )
                     if(response.status == 200){
                         this.$emit('loadFilteredUsers', response.data.data)
                         this.isFetching = false;
@@ -132,7 +132,7 @@ import callOptimization from '@js/helpers/callOptimization.js';
 
             async findUser(query){
                 try {
-                    return await apiClient.get('/api/admin/users',{ params:{ search: query  } } )
+                    return await apiClient.get('/api/users',{ params:{ search: query  } } )
                 } catch (error) {
                     
                 }

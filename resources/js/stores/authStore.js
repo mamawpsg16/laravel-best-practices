@@ -6,7 +6,7 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     user:null,
     isAuthenticated:false,
-    userOtherDetails:{}
+    authenticationDetails:{}
   }),
 
   getters: {
@@ -22,8 +22,8 @@ export const useAuthStore = defineStore('auth', {
     isSocialAuthenticated(state){
       return state.user?.provider;
     },
-    isUserBanned(state){
-      return state.userOtherDetails?.status_code == 403;
+    hasLoginError(state){
+      return state.authenticationDetails?.status_code && state.authenticationDetails?.status_code != 200;
     },
   },
 
@@ -115,8 +115,8 @@ export const useAuthStore = defineStore('auth', {
       this.user = user
     },
 
-    setBannedConfig(session) {
-      this.userOtherDetails = session
+    setAuthenticationDetails(details) {
+      this.authenticationDetails = details
     },
   },
 });

@@ -5,17 +5,12 @@
             <div class="d-flex justify-content-center align-items-center border border-dark-subtle rounded" title="Actions">
                 <button class="btn btn-sm" type="button" @click="getData(true)"><i class="bi bi-arrow-clockwise"  title="Reset Filter" style="font-size:18px;"></i></button>
                 <button class="btn btn-sm" type="button" @click="showFilter"><i class="bi bi-funnel-fill" title="Filter" style="font-size:18px;"></i></button>
-                <button class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-cloud-download-fill" title="Export" style="font-size:18px;"></i></button>
-                <ul class="dropdown-menu">
-                    <li><button class="dropdown-item" type="button" @click="handleExport('sheet')">CSV</button></li>
-                    <li><button class="dropdown-item" type="button" @click="handleExport('pdf')">PDF</button></li>
-                </ul>
-               
             </div>
         </template>
         <template #content="{ row, column, index, formattedRow }">
         <span v-if="column.field == 'action'" class="d-flex justify-content-center">
-          <button class="btn btn-sm"><i class="bi bi-eye action"></i></button>
+            <router-link :to="{ name:'report-details', params:{uuid:row.uuid} }" @click="read(row.uuid, index)" :data='`report-${index}`' class="btn btn-sm" title="View Report"><i :class="`bi ${!row.read_at ? 'bi-eye' : 'bi-eye-slash'} action`"></i></router-link>
+          <!-- <button class="btn btn-sm" type="button" @click= "read(row.id, index)" :data='`report-${index}`'></button> -->
         </span>
         <span v-else>
             {{row[column.field]}}
@@ -49,13 +44,13 @@ import { customDeepClone } from '@js/helpers/clone.js';
                         width: '130px',
                     },
                     {
-                        label: 'Email Address',
-                        field: 'email',
+                        label: 'Type',
+                        field: 'report_type',
                         width: '200px',
                     },
                     {
-                        label: 'Type',
-                        field: 'report_type',
+                        label: 'Email Address',
+                        field: 'email',
                         width: '200px',
                     },
                     {
@@ -121,7 +116,7 @@ import { customDeepClone } from '@js/helpers/clone.js';
 
             async getData(reset = false) {
                 try {
-                    const response = await apiClient.get('/api/admin/reports');
+                    const response = await apiClient.get('/api/reports');
                     if(response.status == 200){
                         if(reset){
                             this.filterReset = true;
@@ -179,6 +174,15 @@ import { customDeepClone } from '@js/helpers/clone.js';
                 }else{
                     this.exportPdf(data, headers);
                 }
+            },
+
+            async read(uuid, index){
+                const readIcon = 'bi-eye-slash';
+                const unreadIcon = 'bi-eye';
+                const iconElement  = document.querySelector(`a[data="report-${index}"] > i`);
+                iconElement.classList.remove(unreadIcon)
+                iconElement.classList.add(readIcon)
+                await apiClient.put(`/api/reports/mark-as-read/${uuid}`);
             }
         },
     }

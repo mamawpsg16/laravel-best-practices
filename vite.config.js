@@ -16,6 +16,7 @@ export default defineConfig({
       },
     }),
   ],
+  
   resolve: {
     alias: {
       '@js': path.resolve(__dirname, 'resources/js'), // This sets up the '@' alias to point to the 'src' directory
