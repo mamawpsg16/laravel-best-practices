@@ -19,7 +19,6 @@ const apiClient = {
     return makeRequest('GET', url, null, config);
   },
   post: async (url, data, config = {}) => {
-    console.log(data,'url', url);
     return makeRequest('POST', url, data, config);
   },
   put: async (url, data, config = {}) => {
