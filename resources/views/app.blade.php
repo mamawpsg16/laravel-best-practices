@@ -10,7 +10,7 @@
 <body>
     <div id="modals"></div>
     <div id="app" >
-        <main-app :authuser="{{ $user }}" :banned="{{ $banned }}"></main-app>
+        <main-app :authuser="{{ $user }}" :auth-details="{{ $authDetails }}"></main-app>
     </div>
     <script>
     </script>

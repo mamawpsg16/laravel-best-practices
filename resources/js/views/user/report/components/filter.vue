@@ -1,32 +1,38 @@
 <template>
-      <Modal id="user-filter-modal" title="FILTER USERS" modal_size="modal-lg">
+      <Modal id="user-filter-modal" title="FILTER REPORT" modal_size="modal-lg">
         <template #content>
             <div class="d-flex justify-content-end align-items-center mt-3" v-if="isFetching">
                 <div class="spinner-border text-secondary" style="width: 1.5rem; height: 1.5rem;" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
-            <div class="row">
+            <div class="row mb-2">
                 <div class="col-md-6">
                     <label for="email" class="form-label">Creation Date</label>
                     <flat-pickr v-model="filters.date" class="form-control" :config="flatpickrConfig" placeholder="Select Creation Date"/>
                 </div>
                 <div class="col-md-6">
-                    <label for="email" class="form-label">Name/Email</label>
-                    <multiselect v-model="filters.selectedUsers" id="ajax" label="label" track-by="label" placeholder="Type to search" :options="filters.options.users" v-bind="multiselectProps" @search-change="handleSearchUserChange">
+                    <label for="email" class="form-label">Type</label>
+                    <multiselect v-model="filters.selectedReportType" id="ajax" label="label" track-by="label" placeholder="Choose report type" :options="filters.options.reportTypes">
                         <template #noResult>
                             <span>Oops! No elements found. Consider changing the search query.</span>
                         </template>
                     </multiselect>
                 </div>
             </div>
-
-            <div class="row">
+            
+            <div class="row mb-2">
                 <div class="col-md-6">
-                    <label for="email" class="form-label">Status</label>
-                    <multiselect v-model="filters.status" deselect-label="Can't remove this value" track-by="label" label="label" placeholder="Select status" style="margin-bottom:10px;" :options="filters.options.status" :searchable="false"></multiselect>
+                    <label for="email" class="form-label">View Status</label>
+                    <multiselect v-model="filters.viewStatus" deselect-label="Can't remove this value" track-by="label" label="label" placeholder="Select status" style="margin-bottom:10px;" :options="filters.options.viewStatus" :searchable="false"></multiselect>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Resolve Status</label>
+                    <multiselect v-model="filters.resolveStatus" deselect-label="Can't remove this value" track-by="label" label="label" placeholder="Select status" style="margin-bottom:10px;" :options="filters.options.resolveStatus" :searchable="false"></multiselect>
                 </div>
             </div>
+            
             <div class="d-flex justify-content-end align-items-center">
                 <div id="right-section">
                     <button  type="button" class="btn btn-sm  bg-success-subtle px-3 ms-3" @click="handleFilter">Load</button>
@@ -43,7 +49,6 @@ import { useVuelidate } from '@vuelidate/core'
 import apiClient from '@js/helpers/apiClient.js';
 import flatPickr from 'vue-flatpickr-component';
 import Multiselect from 'vue-multiselect'
-import callOptimization from '@js/helpers/callOptimization.js';
     export default {
         props:{
             isResetClicked:{
@@ -60,19 +65,29 @@ import callOptimization from '@js/helpers/callOptimization.js';
             flatPickr,
             Multiselect
         },
+        async created(){
+            await this.getReportTypes()
+        },
         emits: ['loadFilteredUsers'],
         data(){
             return{
                 filters:{
                     date:null,
                     status:null,
-                    selectedUsers:[],
+                    selectedReportType:[],
+                    viewStatus:null,
+                    resolveStatus:null,
                     options:{
-                        status: [
-                            {label: 'Banned', value: 1},
-                            {label: 'Unbanned', value: 0},
+                        reportTypes: [],
+                        viewStatus: [
+                            {label: 'Unread', value: 0},
+                            {label: 'Reviewed', value: 1},
                         ],
-                        users: [],
+                        resolveStatus: [
+                            {label: 'Pending', value: 0},
+                            {label: 'Under Investigation', value: 1},
+                            {label: 'Resolved', value: 2},
+                        ],
                     }
                 },
                 flatpickrConfig:{
@@ -81,26 +96,17 @@ import callOptimization from '@js/helpers/callOptimization.js';
                     dateFormat: "Y-m-d",
                     mode: "range",
                 },
-                multiselectProps: {
-                    openDirection: 'bottom',
-                    multiple: true,
-                    searchable: true,
-                    clearOnSelect: false,
-                    closeOnSelect: false,
-                    optionsLimit: 50,
-                    internalSearch:false,
-                    showNoResults: false,
-                    hideSelected:true
-                },
                 isFetching:false
             }
         },
         methods:{
             async handleFilter(){
                 this.isFetching = true;
-                const bannedStatus = this.filters.status ? this.filters.status.value : this.status;
+                const reportType = this.filters.selectedReportType ? this.filters.selectedReportType.value : this.filters.selectedReportType;
+                const viewStatus = this.filters.viewStatus ? this.filters.viewStatus.value : this.filters.viewStatus;
+                const resolveStatus = this.filters.resolveStatus ? this.filters.resolveStatus.value : this.filters.resolveStatus;
                 try {
-                    const response = await apiClient.get('/api/admin/users',{ params:{ bannedStatus:bannedStatus, date:this.filters.date, userIds: this.filters.selectedUsers?.map(user => user.value)  } } )
+                    const response = await apiClient.get('/api/reports',{ params:{ reportType:reportType, date:this.filters.date, viewStatus:viewStatus, resolveStatus: resolveStatus } } )
                     if(response.status == 200){
                         this.$emit('loadFilteredUsers', response.data.data)
                         this.isFetching = false;
@@ -112,43 +118,24 @@ import callOptimization from '@js/helpers/callOptimization.js';
                     
                 }
             },
-            
-            
-            handleSearchUserChange: callOptimization.throttle(async function (query) {
-                if(!query){
-                    this.filters.options.users = [];
-                    return false
-                }
 
-                // your async operations, e.g., API calls
-                const response = await this.findUser(query);
-                if(response.status == 200){
-                    this.filters.options.users = response.data.data;
-                }
-            }, 500),
-
-            async findUser(query){
-                try {
-                    return await apiClient.get('/api/admin/users',{ params:{ search: query  } } )
-                } catch (error) {
-                    
+            async getReportTypes(){
+                const response = await apiClient.get('/api/reports/types');
+                if(response.status == 200) {
+                    this.filters.options.reportTypes = response.data.options;
                 }
             },
 
             resetFilter(){
-                this.filters = {
+                this.filters =  {
                     date:null,
                     status:null,
-                    selectedUsers:[],
+                    selectedReportType:[],
                     options:{
-                        status: [
-                            {label: 'Banned', value: 1},
-                            {label: 'Unbanned', value: 0},
-                        ],
-                        users: [],
+                        reportTypes: [],
                     }
                 }
-            }
+            },
         },
 
         watch: {

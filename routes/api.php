@@ -29,11 +29,20 @@ Route::middleware(['auth:sanctum', 'banned'])->group(function () {
     Route::get('/posts',[PostController::class, 'index']);
     Route::post('/logout', [AuthenticationController::class,'logout'])->name('logout');
     
+    Route::apiResource('users', UserController::class);
+    Route::put('/users/{user}/ban', [UserController::class, 'banUser']);
+
+    /** REPORT */
+    Route::prefix('reports')->group(function () {
+        Route::get('/replies', [ReportController::class, 'getReplies']);
+        Route::get('/types', [ReportController::class, 'getReportTypes']);
+        Route::put('mark-as-read/{report}', [ReportController::class, 'markAsRead']);
+        Route::post('send-message', [ReportController::class, 'reply']);
+    });
+
+    Route::apiResource('/reports', ReportController::class);
+
     Route::prefix('admin')->group(function () {
-        Route::apiResource('users', UserController::class);
-        Route::put('/users/{user}/ban', [UserController::class, 'banUser']);
-        Route::get('/get-report-types', [ReportController::class, 'getReportTypes']);
-        Route::apiResource('/reports', ReportController::class);
     });
     
     Route::get('/tasks-status',[TaskController::class, 'getTaskStatusDetails']);

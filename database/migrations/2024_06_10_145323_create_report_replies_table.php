@@ -11,17 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('reports', function (Blueprint $table) {
+        Schema::create('report_replies', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('report_id')->constrained();
             $table->foreignId('user_id')->constrained();
-            $table->foreignId('report_type_id')->constrained();
-            $table->string('uuid',100);
-            $table->string('title',100);
             $table->mediumText('description');
             $table->timestamps();
-
-            $table->index('title');
-            $table->index('uuid');
         });
     }
 
@@ -30,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('reports');
+        Schema::dropIfExists('report_replies');
     }
 };

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Spa;
 
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Session;
 
 class ViewController extends Controller
 {
@@ -21,7 +22,7 @@ class ViewController extends Controller
         }
 
         $user = session('auth-user');
-        $banned = session('banned');
-        return view('app',['user' => json_encode($user), 'banned' => json_encode($banned)]);
+        $authDetails = session('auth-details');
+        return view('app',['user' => json_encode($user), 'authDetails' => json_encode($authDetails)]);
     }
 }

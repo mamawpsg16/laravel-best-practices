@@ -28,7 +28,7 @@
                                 <router-link :to="{ name: 'report-create' }" class="dropdown-item" title="Submit a ticket">Create Report</router-link>
                             </li>
                             <li v-if="isVerifiedUser" class="nav-item">
-                                <router-link :to="{ name: 'admin-report' }" class="dropdown-item" title="View Reports">Reports</router-link>
+                                <router-link :to="{ name: 'report' }" class="dropdown-item" title="View Reports">Reports</router-link>
                             </li>
                             <li v-if="isVerifiedUser" class="nav-item">
                                 <router-link :to="{ name: 'admin-user' }" class="dropdown-item" title="View Users">Users</router-link>

@@ -9,12 +9,13 @@ const EmailVerification = () => import('@js/views/authentication/EmailVerificati
 const ResetPasswordConfirmation = () => import('@js/views/authentication/ResetPasswordConfirmation.vue')
 
 /** ADMIN */
-const AdminUserMonitoring = () => import('@js/views/admin/user/Index.vue')
-const AdminReportMonitoring = () => import('@js/views/admin/report/Index.vue')
+const Monitoring = () => import('@js/views/admin/user/Index.vue')
 
 /** USER */
-const UserTaskIndex = () => import('@js/views/user/task/Index.vue')
-const UserReportCreate = () => import('@js/views/user/report/Create.vue')
+const TaskIndex = () => import('@js/views/user/task/Index.vue')
+const ReportCreate = () => import('@js/views/user/report/Create.vue')
+const ReportMonitoring = () => import('@js/views/user/report/Index.vue')
+const ReportDetails = () => import('@js/views/user/report/Details.vue')
 
 const routes = [
     /** CATCH NOT DEFINED ROUTE */
@@ -26,40 +27,51 @@ const routes = [
     { path: '/register', component: Register,  name:'register', meta: { requiresAuth: false } },
     { path: '/reset-password/:token', component: ResetPasswordConfirmation,  name:'reset-password-confirmation', meta: { requiresAuth: false } },
 
-    /** AUTHENTICATED ROUTES */
-    { path: '/', component: Dashboard, name:'dashboard',meta: { requiresAuth: true } },
-    { path: '/forbidden', component: Forbidden, name:'forbidden',meta: { requiresAuth: true } },
-    { path: '/about', component: About, name:'about', meta: { requiresAuth: true } },
-    { path: '/email-verification', component: EmailVerification,  name:'email-verification', meta: { requiresAuth: true } },
+     // Authenticated routes
+    { path: '/', component: Dashboard, name: 'dashboard', meta: { requiresAuth: true, breadcrumb: 'Dashboard' } },
+    { path: '/forbidden', component: Forbidden, name: 'forbidden', meta: { requiresAuth: true, breadcrumb: 'Forbidden' } },
+    { path: '/about', component: About, name: 'about', meta: { requiresAuth: true, breadcrumb: 'About' } },
+    { path: '/email-verification', component: EmailVerification, name: 'email-verification', meta: { requiresAuth: true, breadcrumb: 'Email Verification' } },
 
-    /** USER */
-    { path: '/tasks', component: UserTaskIndex,  name:'task-index', meta: { requiresAuth: true } },
-    { path: '/report/create', component: UserReportCreate, name:'report-create', meta: { requiresAuth: true } },
+    // USER routes
+    { path: '/tasks', component: TaskIndex, name: 'task-index', meta: { requiresAuth: true, breadcrumb: 'Tasks' } },
 
-    /** ADMIN */
+    // ADMIN routes
     {
       path: '/admin',
       children: [
         {
           path: 'users',
-          component: AdminUserMonitoring,
-          name:'admin-user',
-          meta: { requiresAuth: true }
+          component: Monitoring,
+          name: 'admin-user',
+          meta: { requiresAuth: true, breadcrumb: 'Users Monitoring' }
         },
-        { 
-          path: '/report',
-          children: [
-            {
-              path: '',
-              component: AdminReportMonitoring,
-              name: 'admin-report',
-              meta: { requiresAuth: true } 
-            },
-          ],
-        }
       ],
     },
-
+    {
+      path: '/report',
+      meta: { breadcrumb: 'Report' },
+      children: [
+        {
+          path: '',
+          component: ReportMonitoring,
+          name: 'report',
+          meta: { requiresAuth: true, breadcrumb: 'Monitoring' }
+        },
+        {
+           path: 'create',
+           component: ReportCreate,
+           name: 'report-create',
+           meta: { requiresAuth: true, breadcrumb: 'Create Report' }
+        },
+        {
+          path: ':uuid',
+          component: ReportDetails,
+          name: 'report-details',
+          meta: { requiresAuth: true, breadcrumb: 'Report Details' }
+        },
+      ],
+    },
   ];
 
 export default routes;

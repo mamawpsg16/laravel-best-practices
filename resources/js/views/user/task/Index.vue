@@ -1,7 +1,7 @@
 <template>
   <Create @update-list="taskAdded"></Create>
-  <Edit @update-task="taskUpdated" :data="data"></Edit>
-  <CompletedTasks :tasks="completed" @restored-tasks="taskAdded" ></CompletedTasks>
+  <Edit @update-task="taskUpdated" :task="data"></Edit>
+  <CompletedTasks :data="completed" @restored-tasks="taskAdded" ></CompletedTasks>
   <div class="row mt-3">
     <div class="d-flex justify-content-end mt-2">
       <button type="button" class="btn btn-primary text-white me-2" @click="createTask" title="Add New Task">
@@ -57,7 +57,7 @@ export default {
       pending: [],
       ongoing: [],
       completed: [],
-      data:[],
+      data:undefined,
       statuses:{0:'Pending', 1: 'Ongoing'},
       item_index:null,
       item_key:null,
@@ -95,7 +95,6 @@ export default {
         const id = tasks[index].id;
         const response = await apiClient.post('/api/tasks/update-status', {id:id, status:status});
       } catch (error) {
-        console.log('Update Status error: ' + error);
       }
     },
 
@@ -111,7 +110,6 @@ export default {
         this.orderChanged = false;
       }
      } catch (error) {
-      console.log('updateTasksOrder error: ' + error);
      }
     },
 

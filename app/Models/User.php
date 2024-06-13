@@ -45,6 +45,9 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
     public function scopeIsVerified($q){
         return $q->whereNotNull('email_verified_at');
     }
+    public function isAdmin(){
+        return $this->is_admin;
+    }
 
     public function isBanned()
     {

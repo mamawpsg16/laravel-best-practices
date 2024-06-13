@@ -34,7 +34,7 @@ import { sweetAlertNotification, sweetAlertConfirmation } from '@js/helpers/swee
             Modal
         },
         props:{
-            tasks:[Array, Object]
+            data:[Array, Object]
         },
         emits:['restoredTasks'],
         data(){
@@ -70,7 +70,6 @@ import { sweetAlertNotification, sweetAlertConfirmation } from '@js/helpers/swee
                         width: '230px'
                     },
                 ],
-                data:[],
                 selectedRows:false
               
             }
@@ -129,14 +128,6 @@ import { sweetAlertNotification, sweetAlertConfirmation } from '@js/helpers/swee
                 this.selectedRows = selectedRows;
             }
         },
-        watch: {
-            tasks: {
-                handler(data) {
-                    this.data = data;
-                },
-                deep: true
-            }
-        }
     }
 </script>
 

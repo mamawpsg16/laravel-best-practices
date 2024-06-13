@@ -77,7 +77,17 @@ class AuthenticationController extends Controller
         try {
             $user = Socialite::driver('google')->user();
             $isUserExists = User::where('email', $user->getEmail())->first();
-
+            $isRegistered = User::where('email', $user->getEmail())->whereNull('provider')->exists();
+            // Check if the user is banned
+            if (!empty($isRegistered)) {
+                // Return a JSON response indicating the user is banned
+                session()->flash('auth-details', [
+                    'error' => 'Email address already in use, try another other email address.',
+                    'status_code' => 409,
+                ]);
+                return redirect('login');
+            }
+            
             $authUser = User::updateOrCreate(
                 ['provider_id' => $user->getId()],
                 [
@@ -90,7 +100,7 @@ class AuthenticationController extends Controller
             // Check if the user is banned
             if (!empty($isUserExists) && $isUserExists->isBanned()) {
                 // Return a JSON response indicating the user is banned
-                session()->flash('banned', [
+                session()->flash('auth-details', [
                     'error' => 'Your account has been banned.',
                     'status_code' => 403,
                     'endDate' => "Lifted at: ".date("F j, Y, g:i a", strtotime($isUserExists->banned_end_at))

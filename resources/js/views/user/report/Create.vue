@@ -3,7 +3,7 @@
         <h4 class="text-center">Report</h4>
         <div class="mb-2">
           <label for="type" class="form-label">Type <code>*</code></label>
-          <multiselect v-model="form.report_type" id="ajax" label="label" track-by="label" required placeholder="Choose type" :class="{ 'border border-danger': checkInputValidity('form', 'report_type', ['required']) }" :options="reportTypes" v-bind="multiselectProps" @open="getReportTypes">
+          <multiselect v-model="form.report_type" id="ajax" label="label" track-by="label" required placeholder="Choose type" :class="{ 'border border-danger': checkInputValidity('form', 'report_type', ['required']) || errors?.report_type }" :options="reportTypes" v-bind="multiselectProps" @open="getReportTypes">
               <template #noResult>
                   <span>Oops! No elements found. Consider changing the search query.</span>
               </template>
@@ -17,9 +17,24 @@
               </span>
           </div>
         </div>
+        <div class="mb-2" v-if="isAccountType">
+            <label for="email" class="form-label" >Email <code>*</code></label>
+            <Input type="email" id="email" autocomplete="email" :class="{ 'border border-danger': checkInputValidity('form', 'email', ['required', 'email'])  || errors?.email }" class="form-control py-2" placeholder="Enter email" v-model="form.email"/>
+            <div v-if="errors?.email" class="text-danger">
+                {{ errors?.email[0] }}
+            </div>
+            <div class="text-danger">
+                <span v-if="v$.form.email.required.$invalid">
+                  Email is required.
+                </span>
+                <span v-if="v$.form.email.$invalid" :class="{'d-block' : v$.form.email.required.$invalid}">
+                  Email must be valid.
+                </span>
+            </div>
+        </div>
         <div class="mb-2">
             <label for="title" class="form-label" >Title <code>*</code></label>
-            <Input type="title" id="title" autocomplete="title" :class="{ 'border border-danger': checkInputValidity('form', 'title', ['required', 'maxLength']) }" class="form-control py-2" placeholder="Enter title" v-model="form.title"/>
+            <Input type="title" id="title" autocomplete="title" :class="{ 'border border-danger': checkInputValidity('form', 'title', ['required', 'maxLength']) || errors?.title }" class="form-control py-2" placeholder="Enter title" v-model="form.title"/>
             <div v-if="errors?.title" class="text-danger">
                 {{ errors?.title[0] }}
             </div>
@@ -27,14 +42,14 @@
                 <span v-if="v$.form.title.required.$invalid">
                   Title is required.
                 </span>
-                <span v-if="v$.form.title.maxLength.$invalid">
+                <span v-if="v$.form.title.maxLength.$invalid" :class="{'d-block' : v$.form.title.required.$invalid}">
                     Title must only contain 100 characters.
                 </span>
             </div>
         </div>
         <div class="mb-2">
           <label for="password" class="form-label">Description <code>*</code></label>
-          <TextArea v-model="form.description"  :class="{ 'border border-danger': checkInputValidity('form', 'description', ['required', 'maxLength']) }" required></TextArea>
+          <TextArea v-model="form.description"  :class="{ 'border border-danger': checkInputValidity('form', 'description', ['required', 'maxLength']) || errors?.description }" required></TextArea>
           <div v-if="errors?.description" class="text-danger">
                 {{ errors?.description[0] }}
             </div>
@@ -42,7 +57,7 @@
                 <span v-if="v$.form.description.required.$invalid">
                   Description is required.
                 </span>
-                <span v-if="v$.form.description.maxLength.$invalid">
+                <span v-if="v$.form.description.maxLength.$invalid" :class="{'d-block' : v$.form.description.required.$invalid}">
                   Description must only contain 1000 characters.
                 </span>
             </div>
@@ -72,11 +87,11 @@
     import apiClient from '@js/helpers/apiClient.js';
     import Multiselect from 'vue-multiselect'
     import { useVuelidate } from '@vuelidate/core'
-    import { required, maxLength } from '@vuelidate/validators';
+    import { required, maxLength, email } from '@vuelidate/validators';
     import { checkValidity  } from '@js/helpers/Vuelidate.js';
     import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
     import { component as Viewer } from "v-viewer"
-
+  
     export default {
       setup () {
         return { v$: useVuelidate({ $autoDirty : true, $lazy: true}) }
@@ -92,6 +107,7 @@
           form:{
             title: '',
             description: '',
+            email: '',
             report_type:null
           },
           files:null,
@@ -100,6 +116,7 @@
           errors:[{
             title:false,
             description:false,
+            email:false,
           }],
           images:[],
           reportTypes:[],
@@ -123,13 +140,28 @@
           },
         }
       },
-      validations () {
-        return {
-          form:{
-            title: { required,   maxLength: maxLength(100) },
-            description: { required,  maxLength: maxLength(1000) },
-            report_type: { required },
+
+      computed: {
+        isAccountType() {
+          return this.form.report_type && this.form.report_type.account;
+        },
+        validationRules() {
+          const rules = {
+            title: { required, maxLength: maxLength(100) },
+            description: { required, maxLength: maxLength(1000) },
+            report_type: { required }
+          };
+
+          if (this.isAccountType) {
+            rules.email = { required, email };
           }
+
+          return rules;
+        }
+      },
+      validations() {
+        return {
+          form: this.validationRules
         }
       },
       created(){
@@ -164,11 +196,17 @@
           document.getElementById('report-form').reset();
           this.form = {
             title: '',
+            email: '',
             description: '',
             report_type:''
           }
           this.files = null;
           this.images = [];
+          this.errors = [{
+            title:false,
+            description:false,
+            email:false,
+          }];
           this.v$.$reset();
         },
         
@@ -178,6 +216,9 @@
             for (let i = 0; i < this.files.length; i++) {
               formData.append('attachments[]', this.files[i]);
             }
+          }
+          if(this.form.report_type.account){
+            formData.append('email',this.form.email)
           }
           formData.append('title',this.form.title)
           formData.append('description',this.form.description)
@@ -190,7 +231,7 @@
             if (!(await this.v$.$validate())) return; // Return if validation fails
             this.isSending = true;
 
-            const response = await apiClient.post('/api/admin/reports',this.structureData());
+            const response = await apiClient.post('/api/reports',this.structureData());
 
             if(response.status == 200){
               this.isSending = false;
@@ -198,17 +239,20 @@
               this.resetForm();
             }
 
-            if (response.response.status == 422) {
-                this.errors =  response.response.data.errors;
+            if (response.status == 422) {
+                this.errors =  response.data.errors;
                 this.isSending = false;
             }
           } catch (error) {
+            if (error.response.status == 422) {
+                this.errors =  error.response.data.errors;
+            }
             this.isSending = false;
           }
         },
 
         async getReportTypes(){
-          const response = await apiClient.get('/api/admin/get-report-types');
+          const response = await apiClient.get('/api/reports/types');
           if(response.status == 200) {
             this.reportTypes = response.data.options;
           }

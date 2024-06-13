@@ -12,7 +12,6 @@ const exporter = {
         /* fix headers */
         utils.sheet_add_aoa(worksheet, [[...headers]], { origin: "A1" });
 
-        console.log(worksheet,'worksheet');
 
         /* create an XLSX file and try to save to exportName.xlsx */
         writeFile(workbook, `${exportName}.xlsx`, { compression: true, FS:'\t' });

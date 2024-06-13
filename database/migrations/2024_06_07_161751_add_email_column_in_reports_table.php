@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('report_attachments', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('report_id')->constrained();
-            $table->string('filename',200);
-            $table->text('attachment');
-            $table->timestamps();
+        Schema::table('reports', function (Blueprint $table) {
+            $table->string('email')->after('report_type_id')->nullable();
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('report_attachments');
+        Schema::table('reports', function (Blueprint $table) {
+            $table->dropColumn('email');
+        });
     }
 };

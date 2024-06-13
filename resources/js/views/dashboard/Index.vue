@@ -93,7 +93,6 @@ ChartJS.register(ArcElement, Tooltip, Legend)
       }
     },
     mounted(){
-      // console.log(this.$refs['vueGoodTable'],'this.$refs.vgt');
     },
   }
   </script>

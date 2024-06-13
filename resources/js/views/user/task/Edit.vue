@@ -47,8 +47,15 @@ import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
     export default {
         name:'Task Edit',
         props:{
-            data:{
-                type:[Array, Object]
+            task:{
+                type:[Array, Object],
+                default() {
+                    return {
+                        name: null,
+                        description: null,
+                        due_date: null,
+                    };
+                },
             }
         },
         setup () {
@@ -62,11 +69,6 @@ import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
                     altFormat: 'F j, Y',
                     altInput: true,
                     dateFormat: 'Y-m-d',
-                },
-                task:{
-                    name:null,
-                    description:null,
-                    due_date:null,
                 },
             }
         },
@@ -105,13 +107,6 @@ import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
                 }
             },
         },
-        watch: {
-            data: {
-                handler(newValue, oldValue) {
-                    this.task = {...newValue};
-                },
-            }
-        }
     }
 </script>
 

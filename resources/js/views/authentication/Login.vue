@@ -90,8 +90,8 @@
       ResetPasswordLink
     },
     mounted(){
-      if(this.authStore.isUserBanned){
-        sweetAlertNotification(this.authStore.userOtherDetails.error, this.authStore.userOtherDetails.endDate, "info", false)
+      if(this.authStore.hasLoginError){
+        sweetAlertNotification(this.authStore.authenticationDetails?.error, this.authStore.authenticationDetails?.endDate, "info", false)
       }
     },  
     methods: {
@@ -132,20 +132,20 @@
           if(response.status == 200){
             localStorage.setItem('authenticated', true);
             this.isCredentialInvalid = null;
-            this.isLoggingIn = false;
             sweetAlertNotification("Logged In Succesfully", "", "success")
             setTimeout(() => {
+              this.isLoggingIn = false;
               window.location.href = '/';
             }, 1000);
           }
-          if (response.response.status == 422) {
-              this.errors =  response.response.data.errors;
+          if (response.status == 422) {
+              this.errors =  response.data.errors;
               this.isLoggingIn = false;
           }
         } catch (error) {
           this.isLoggingIn = false;
-          if(error.response.status == 403){
-            sweetAlertNotification(error.response.data.error, error.response.data.endDate, "info", false)
+          if(error.response.status == 403 || error.response.status == 409){
+            sweetAlertNotification(error.response.data.error, error.response.data?.endDate, "info", false)
             return;
           }
           this.isCredentialInvalid = error?.response?.data.error

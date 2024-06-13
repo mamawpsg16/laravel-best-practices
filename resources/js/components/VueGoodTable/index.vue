@@ -50,7 +50,7 @@ import { VueGoodTable } from 'vue-good-table-next';
                 type:[Object],
                 default:{
                     enabled: true,
-                    infoFn: (params) => `Showing ${params.firstRecordOnPage} to ${params.lastRecordOnPage} of page ${params.currentPage}`,
+                    infoFn: (params) => `Showing ${params.firstRecordOnPage} to ${params.lastRecordOnPage} of ${params.totalRecords} entries - Page ${params.currentPage}`,
                 }
             },
             classes:{

@@ -24,6 +24,12 @@ window.axios.interceptors.response.use(
         useAuthStore().setAuthenticated(false);
         location.href="/login";
         break;
+      case 403: // Not logged in
+        if (error.response.data.status === 'forbidden') {
+          // Handle the forbidden case
+          location.href="/forbidden";
+        }
+        break;
       case 503: // Down for maintenance
           // Bounce the user to the login screen with a redirect back
           // window.location.reload();
