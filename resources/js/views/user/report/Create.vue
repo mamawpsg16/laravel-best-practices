@@ -239,13 +239,11 @@
               this.resetForm();
             }
 
-            console.log(response);
             if (response.status == 422) {
                 this.errors =  response.data.errors;
                 this.isSending = false;
             }
           } catch (error) {
-            console.log(error,'error');
             if (error.response.status == 422) {
                 this.errors =  error.response.data.errors;
             }

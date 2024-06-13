@@ -7,11 +7,12 @@ use Illuminate\Http\Request;
 use App\Models\Report\Report;
 use App\Models\Report\ReportType;
 use App\Traits\GlobalHelperClass;
+use App\Models\Report\ReportReply;
 use App\Http\Controllers\Controller;
 use App\Services\User\ReportService;
+use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Report\StoreReportRequest;
 use App\Http\Requests\Report\UpdateReportRequest;
-use App\Models\Report\ReportReply;
 
 class ReportController extends Controller
 {
@@ -27,6 +28,7 @@ class ReportController extends Controller
         $viewStatus = $request->query('viewStatus');
         $resolveStatus = $request->query('resolveStatus');
         $creationDate = $request->query('date');
+        $isAdmin = auth()->user()->isAdmin();
         $data = Report::select($this->selectedColumns(null))
         // ->join('users as u', 'reports.user_id', '=', 'u.id')
         ->join('report_types as rt', 'reports.report_type_id', '=', 'rt.id')
@@ -53,6 +55,8 @@ class ReportController extends Controller
             }
         })->when(!is_null($resolveStatus), function($q) use($resolveStatus){
             $q->where('reports.resolved_status', $resolveStatus);
+        })->when(!$isAdmin, function($q){
+            $q->IsOwner(auth()->user()->id);
         })
         ->oldest('reports.created_at')
         ->get();
@@ -82,6 +86,9 @@ class ReportController extends Controller
     public function show($id)
     {   
         $report = is_numeric($id) ? Report::findOrFail($id): Report::where('uuid', $id)->firstOrFail(); 
+        if (!Gate::allows('show-report', $report)) {
+            return response(['status'=>'forbidden'],403);
+        }
         return response(['data' => $report->load(['type','attachments'])]);
     }
 
@@ -106,8 +113,9 @@ class ReportController extends Controller
 
     public function getReplies(Request $request){
         $reportId = $request->query('reportId');
-        $replies = ReportReply::where('report_id', $reportId)->get();
+        $replies = ReportReply::select('description', 'report_id', 'u.name', 'u.email', 'report_replies.created_at')
+        ->join('users as u', 'report_replies.user_id', 'u.id')
+        ->where('report_id', $reportId)->get();
         return response(['replies' => $replies]);
-
     }
 }

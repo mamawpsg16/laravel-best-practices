@@ -22,6 +22,7 @@ import apiClient from '@js/helpers/apiClient.js';
 import { sweetAlertNotification } from '@js/helpers/sweetAlert.js';
 import TextArea from '@js/components/Form/TextArea.vue'
 import { checkValidity  } from '@js/helpers/Vuelidate.js';
+import formatter from '@js/helpers/formatter.js';
 import { useVuelidate } from '@vuelidate/core'
 import { required, maxLength, email } from '@vuelidate/validators';
     export default {
@@ -29,8 +30,13 @@ import { required, maxLength, email } from '@vuelidate/validators';
             id:{
                 type:Number,
                 default:null
+            },
+            inConversation:{
+                type:Boolean,
+                default:false
             }
         },
+        emits:['fetch-conversations'],
         setup () {
             return { v$: useVuelidate({ $autoDirty : true, $lazy: true}) }
         },
@@ -44,7 +50,6 @@ import { required, maxLength, email } from '@vuelidate/validators';
                 }],
                 message:null,
                 isSending: false,
-                reportId:null
             }
         },
         validations() {
@@ -65,15 +70,39 @@ import { required, maxLength, email } from '@vuelidate/validators';
                 return checkValidity(this.v$, parentProperty, dataProperty, validations);
             },
 
+            formatConversation(data){
+                return {
+                    ...data,
+                    created_at: formatter.formatReadableDateTime(data.created_at)
+                }
+            },
+
+            async getConversations(){
+                try {
+                    const response = await apiClient.get(`/api/reports/replies`, {params:{ reportId: this.id} })
+                    if(response.status == 200){
+                        const { replies } = response.data;
+                        const formattedReplies = replies.map(reply => this.formatConversation(reply));
+                        return formattedReplies;
+                    }
+                } catch (error) {
+                    
+                }
+            },
+
             async handleSendMessage(){
                 if (!(await this.v$.$validate())) return; // Return if validation fails
                 
                 this.isSending = true;
                 
                 try {
-                    const response = await apiClient.post('/api/reports/send-message',{id:this.reportId, message:this.message})
+                    const response = await apiClient.post('/api/reports/send-message',{id:this.id, message:this.message})
                     if(response.status == 200){
                         this.resetForm();
+                        if(this.inConversation){
+                            const replies = await this.getConversations();
+                            this.$emit('fetch-conversations', replies);
+                        }
                         sweetAlertNotification(response.data.message, "", "success");
                     }
                 } catch (error) {
@@ -83,14 +112,6 @@ import { required, maxLength, email } from '@vuelidate/validators';
                 }
             }
         },
-
-        watch:{
-            id(newId){
-                if(newId){
-                    this.reportId = newId;
-                }
-            }
-        }
         
     }
 </script>

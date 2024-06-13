@@ -32,4 +32,8 @@ class Report extends Model
     public function scopeRead($q){
         $q->whereNotNull('read_at');
     }
+
+    public function scopeIsOwner($q, $user_id){
+        $q->where('user_id', $user_id);
+    }
 }

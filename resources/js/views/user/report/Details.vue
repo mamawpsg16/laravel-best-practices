@@ -32,7 +32,7 @@
             </viewer>
         </div>
         <reply :id="details.id"> </reply>
-        <conversations   :replies="replies" :id="details.id" v-if="details"/>
+        <conversations   :replies="replies" :id="details.id"/>
     </div>
 </template>
 
@@ -89,15 +89,16 @@ import reply from './components/reply.vue';
                 replies:[]
             }
         },
+        
         computed:{
             isAccountType() {
                 return this.details.type && this.details.type.account;
             },
         },
+
         async created(){
             await this.getData();
         },
-        
 
         mounted() {
         },
@@ -140,13 +141,20 @@ import reply from './components/reply.vue';
                 }
             },
 
+            formatConversation(data){
+                return {
+                    ...data,
+                    created_at: formatter.formatReadableDateTime(data.created_at)
+                }
+            },
+
             async getConversations(){
                 try {
                     const response = await apiClient.get(`/api/reports/replies`, {params:{ reportId: this.details.id} })
                     if(response.status == 200){
                         const { replies } = response.data;
-                        this.replies = replies;
-s                    }
+                        this.replies = replies.map(reply => this.formatConversation(reply));
+                    }
                 } catch (error) {
                     
                 }
@@ -155,7 +163,6 @@ s                    }
             async showConversation(){
                 await this.getConversations();
                 const modal_id = document.getElementById("report-conversation-modal");
-                console.log(modal_id,'modal_id');
                 const modal = bootstrap.Modal.getOrCreateInstance(modal_id);
                 modal.show();
             },
