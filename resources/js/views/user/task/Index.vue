@@ -95,7 +95,6 @@ export default {
         const id = tasks[index].id;
         const response = await apiClient.post('/api/tasks/update-status', {id:id, status:status});
       } catch (error) {
-        console.log('Update Status error: ' + error);
       }
     },
 
@@ -111,7 +110,6 @@ export default {
         this.orderChanged = false;
       }
      } catch (error) {
-      console.log('updateTasksOrder error: ' + error);
      }
     },
 
