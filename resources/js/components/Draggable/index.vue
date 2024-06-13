@@ -102,7 +102,6 @@ import { sweetAlertConfirmation, sweetAlertNotification } from "@js/helpers/swee
                 this.$emit('updateCompletedTasks', response.data.data)
               }
             }).catch((err) =>{
-              console.log(err);
             });
           },
 

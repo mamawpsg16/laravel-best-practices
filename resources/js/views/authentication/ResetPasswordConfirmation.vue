@@ -97,7 +97,6 @@
             if(!await this.v$.$validate()) return;         
             this.isProcessing = true;
             const response = await this.authStore.resetPasswordConfirmation(this.$route.query.email, this.password, this.password_confirmation, this.$route.params.token);
-            console.log(response.data,'response.data');
             if(response.data.isReset){
                 // localStorage.setItem('authenticated', true);
                 this.isProcessing = false;
@@ -118,7 +117,6 @@
                 this.isProcessing = false;
             }
         } catch (error) {
-            console.log(error,'error');
             if (error?.response?.status == 422) {
                 this.errors =  error?.response?.data?.errors;
             }
