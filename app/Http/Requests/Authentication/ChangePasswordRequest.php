@@ -25,7 +25,7 @@ class ChangePasswordRequest extends FormRequest
         return [
             'password' => ['required', 'current_password:web'],
             'new_password' => ['required', 'min:8', new MatchNewPassword],
-            'new_password_confirmation' => ['required'],
+            'new_password_confirmation' => ['required', 'same:new_password'],
         ];
     }
 }

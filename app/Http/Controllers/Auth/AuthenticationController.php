@@ -125,10 +125,10 @@ class AuthenticationController extends Controller
 
     public function verify(EmailVerificationRequest $request, $id, $hash){
         $request->fulfill();
-        return redirect('/');
+        return redirect('http://localhost:3000');
     }
 
-    public function resendVerification($request){
+    public function resendVerification(Request $request){
         event(new Registered($request->user()));
         return response(['message' => 'Verification link sent']);
     }
@@ -171,7 +171,7 @@ class AuthenticationController extends Controller
         if($status == Password::INVALID_TOKEN){
             $response = [ 'message' => 'Reset Password Token Invalid, request a new reset link.', 'isReset' => false];
         }
-
+        
         return response($response);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Task;
 use Laravel\Sanctum\HasApiTokens;
+use App\Notifications\CustomVerifyEmail;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Auth\CanResetPassword;
@@ -57,4 +58,9 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
     public function tasks(){
         return $this->hasMany(Task::class);
     }
+
+    // public function sendEmailVerificationNotification()
+    // {
+    //     $this->notify(new CustomVerifyEmail);
+    // }
 }

@@ -117,6 +117,7 @@
           }
         } catch (error) {
           this.isCredentialInvalid = error.response.data.message
+        } finally{
           this.isProcessing = false;
         }
       }
