@@ -12,8 +12,28 @@
         <h1 class="text-center">No Tasks Found </h1>
       </template>
       <template v-else>
-        <Doughnut v-if="!isLoading" :data="data" :options="options" style="width:400px; height:400px"/>
+        <div class="card">
+          <div class="card-body">
+            <Doughnut v-if="!isLoading" :data="data" :options="options" style="width:400px; height:400px"/>
+          </div>
+        </div>
       </template>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+          <div class="card-body">
+            <Doughnut v-if="!isLoading" :data="data" :options="options" style="width:500px; height:500px"/>
+          </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+          <div class="card-body">
+            <Doughnut v-if="!isLoading" :data="data" :options="options" style="width:400px; height:400px"/>
+          </div>
+        </div>
     </div>
   </div>
 </template>

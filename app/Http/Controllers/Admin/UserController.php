@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Traits\GlobalHelperClass;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 class UserController extends Controller
@@ -82,6 +83,16 @@ class UserController extends Controller
             $columns = ['name as label', 'id as value'];
         }
         return $columns;
+    }
+
+    public function getUsersReportDetails(Request $request){
+        $activeUsers = User::whereNull('banned_at')->count();
+        $bannedUsers = User::whereNotNull('banned_at')->count();
+        
+        return response()->json([
+            'active_users' => $activeUsers,
+            'banned_users' => $bannedUsers,
+        ]);
     }
     
 }
