@@ -106,14 +106,16 @@ class TaskController extends Controller
     }
 
     public function getTaskStatusDetails(){
-        $taskStatusCounts = Task::select(DB::raw('COUNT(id) as count'), 'status')
-                                ->where('user_id', auth()->id())
-                                ->groupBy('status')
-                                ->orderBy('status')
-                                ->get()
-                                ->toArray();
-                                
-        return response(['data' => $taskStatusCounts]);
+        $pendingReports = Task::where('status',0)->count();
+        $ongoingReports = Task::where('status',1)->count();
+        $completedReports = Task::where('status',2)->count();
+        
+        return response()->json([
+            'pendingReports' => $pendingReports,
+            'ongoingReports' => $ongoingReports,
+            'completedReports' => $completedReports
+        ]);
+
     }
     public function updateTasks(Request $request){
         $taskIds = $request->taskIds;
