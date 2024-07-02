@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\Task\TaskController;
+use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\Auth\AuthenticationController;
@@ -30,20 +31,25 @@ Route::middleware(['auth:sanctum', 'banned'])->group(function () {
     Route::post('/logout', [AuthenticationController::class,'logout'])->name('logout');
     
     Route::apiResource('users', UserController::class);
+    Route::get('/get-dashboard-users',[UserController::class, 'getUsersReportDetails']);
     Route::put('/users/{user}/ban', [UserController::class, 'banUser']);
-
+    
     /** REPORT */
+    Route::get('/get-dashboard-reports',[ReportController::class, 'getReportMonitoringDetails']);
     Route::prefix('reports')->group(function () {
         Route::get('/replies', [ReportController::class, 'getReplies']);
         Route::get('/types', [ReportController::class, 'getReportTypes']);
         Route::put('mark-as-read/{report}', [ReportController::class, 'markAsRead']);
         Route::post('send-message', [ReportController::class, 'reply']);
+        Route::put('update-status/{report}', [ReportController::class, 'resolvedReport']);
     });
 
     Route::apiResource('/reports', ReportController::class);
 
     Route::prefix('admin')->group(function () {
     });
+
+    Route::apiResource('/menus', MenuController::class);
     
     Route::get('/tasks-status',[TaskController::class, 'getTaskStatusDetails']);
     Route::apiResource('/tasks',TaskController::class);
