@@ -118,4 +118,23 @@ class ReportController extends Controller
         ->where('report_id', $reportId)->get();
         return response(['replies' => $replies]);
     }
+
+
+    public function getReportMonitoringDetails(Request $request){
+        $pendingReports = Report::whereNull('read_at')->count();
+        $reviewedReports = Report::whereNotNull('read_at')->whereNull('resolved_at')->count();
+        $resolvedReports = Report::whereNotNull('resolved_at')->count();
+        
+        return response()->json([
+            'pendingReports' => $pendingReports,
+            'reviewedReports' => $reviewedReports,
+            'resolvedReports' => $resolvedReports,
+        ]);
+    }
+
+    public function resolvedReport(Report $report){
+        $report->update(['resolved_at' => now(), 'resolved_by' => auth()->user()->email]);
+
+        return response(['data' =>  $report->load(['type','attachments'])]);
+    }
 }
